@@ -43,10 +43,10 @@ export default defineBackground(() => {
                             const tab = await chrome.tabs.get(tabId);
                             if (tab?.windowId != null) {
                                 await chrome.sidePanel.open({ windowId: tab.windowId });
-                            } else {
-                                // フォールバック：tabId が使える場合
-                                // @ts-expect-error: 型定義差異の可能性に備え
-                                await chrome.sidePanel.open({ tabId });
+                            } else if ('open' in chrome.sidePanel) {
+                                // 型の差異に依存しないフォールバック（tabId指定が型にない環境は実行されない）
+                                await (chrome.sidePanel as unknown as { open: (args: { tabId: number }) => Promise<void> })
+                                    .open({ tabId });
                             }
                         } catch (e) {
                             console.warn('tabs.get or sidePanel.open failed:', e);
