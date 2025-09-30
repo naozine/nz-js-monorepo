@@ -1,13 +1,4 @@
-type ElementInfo = {
-  url: string;
-  title?: string;
-  xpath?: string;
-  cssSelector?: string;
-  outerHTMLSnippet?: string;
-  attributes?: Record<string, string>;
-  textSnippet?: string;
-  timestamp: number;
-};
+import type { ElementInfo } from '../../types/element-info';
 
 const $ = <T extends Element>(sel: string) => document.querySelector<T>(sel)!;
 

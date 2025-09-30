@@ -1,15 +1,6 @@
 // DevTools page script: observes selection in Elements panel and sends info to the extension
 
-interface ElementInfo {
-  url: string;
-  title?: string;
-  xpath?: string;
-  cssSelector?: string;
-  outerHTMLSnippet?: string;
-  attributes?: Record<string, string>;
-  textSnippet?: string;
-  timestamp: number;
-}
+import type { ElementInfo } from '../../types/element-info';
 
 const tabId = chrome.devtools?.inspectedWindow?.tabId;
 
