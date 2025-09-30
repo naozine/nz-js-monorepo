@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Side Panel</title>
+  <link rel="stylesheet" href="./style.css" />
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; font-size: 12px; padding: 8px; }
+    h1 { font-size: 14px; margin: 0 0 8px; }
+    .section { margin: 8px 0; }
+    .row { display: flex; align-items: center; gap: 6px; }
+    code, pre { background: #f5f5f5; padding: 4px; border-radius: 4px; overflow: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { border: 1px solid #ddd; padding: 4px; }
+    .muted { color: #666; }
+    button.copy { padding: 2px 6px; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <h1>要素情報</h1>
+
+  <div id="status" class="muted">DevTools の Elements で要素を選択すると、ここに情報が表示されます。</div>
+
+  <div class="section" id="summary">
+    <div>URL: <code id="url"></code></div>
+    <div>Title: <code id="title"></code></div>
+    <div>Timestamp: <code id="timestamp"></code></div>
+  </div>
+
+  <div class="section" id="selectors">
+    <div class="row">XPath: <code id="xpath"></code> <button class="copy" data-copy="xpath">コピー</button></div>
+    <div class="row">CSS: <code id="css"></code> <button class="copy" data-copy="css">コピー</button></div>
+  </div>
+
+  <div class="section" id="attributes">
+    <div>属性:</div>
+    <table>
+      <thead><tr><th>name</th><th>value</th></tr></thead>
+      <tbody id="attrs"></tbody>
+    </table>
+  </div>
+
+  <div class="section" id="snippets">
+    <div>outerHTML:</div>
+    <pre id="outer"></pre>
+    <div>text:</div>
+    <pre id="text"></pre>
+  </div>
+
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>
