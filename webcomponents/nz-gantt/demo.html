@@ -232,7 +232,38 @@
           <label>依存タスク（カンマ区切り）</label>
           <input type="text" id="taskDependencies" placeholder="例: A,B">
         </div>
-        <div class="form-row">
+        <div class="form-group">
+          <label>色の選択方法</label>
+          <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+              <input type="radio" name="colorMode" value="preset" checked onchange="toggleColorMode()">
+              プリセット
+            </label>
+            <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+              <input type="radio" name="colorMode" value="custom" onchange="toggleColorMode()">
+              カスタム
+            </label>
+          </div>
+        </div>
+        <div id="presetColorSection" class="form-group">
+          <label>カラープリセット</label>
+          <select id="colorPreset" onchange="applyColorPreset()">
+            <option value="">選択してください</option>
+            <option value="blue-white">ブルー / ホワイト</option>
+            <option value="green-white">グリーン / ホワイト</option>
+            <option value="red-white">レッド / ホワイト</option>
+            <option value="orange-white">オレンジ / ホワイト</option>
+            <option value="purple-white">パープル / ホワイト</option>
+            <option value="teal-white">ティール / ホワイト</option>
+            <option value="indigo-white">インディゴ / ホワイト</option>
+            <option value="pink-white">ピンク / ホワイト</option>
+            <option value="yellow-black">イエロー / ブラック</option>
+            <option value="lightblue-darkblue">ライトブルー / ダークブルー</option>
+            <option value="lightgreen-darkgreen">ライトグリーン / ダークグリーン</option>
+            <option value="gray-white">グレー / ホワイト</option>
+          </select>
+        </div>
+        <div id="customColorSection" class="form-row" style="display: none;">
           <div class="form-group">
             <label>棒グラフの色</label>
             <input type="color" id="taskBarColor">
@@ -245,6 +276,53 @@
         <button type="submit" class="btn btn-primary">タスクを追加</button>
         <button type="button" class="btn btn-secondary" onclick="resetTaskForm()">リセット</button>
       </form>
+
+      <div style="margin-top: 30px; padding: 15px; background: #fff8e1; border-radius: 4px; border: 1px solid #ffc107;">
+        <h3 style="margin-top: 0; margin-bottom: 15px;">タスクの色を一括変更</h3>
+        <div class="form-group">
+          <label>色の選択方法</label>
+          <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+              <input type="radio" name="bulkColorMode" value="preset" checked onchange="toggleBulkColorMode()">
+              プリセット
+            </label>
+            <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+              <input type="radio" name="bulkColorMode" value="custom" onchange="toggleBulkColorMode()">
+              カスタム
+            </label>
+          </div>
+        </div>
+        <div id="bulkPresetColorSection" class="form-group">
+          <label>カラープリセット</label>
+          <select id="bulkColorPreset">
+            <option value="">選択してください</option>
+            <option value="blue-white">ブルー / ホワイト</option>
+            <option value="green-white">グリーン / ホワイト</option>
+            <option value="red-white">レッド / ホワイト</option>
+            <option value="orange-white">オレンジ / ホワイト</option>
+            <option value="purple-white">パープル / ホワイト</option>
+            <option value="teal-white">ティール / ホワイト</option>
+            <option value="indigo-white">インディゴ / ホワイト</option>
+            <option value="pink-white">ピンク / ホワイト</option>
+            <option value="yellow-black">イエロー / ブラック</option>
+            <option value="lightblue-darkblue">ライトブルー / ダークブルー</option>
+            <option value="lightgreen-darkgreen">ライトグリーン / ダークグリーン</option>
+            <option value="gray-white">グレー / ホワイト</option>
+          </select>
+        </div>
+        <div id="bulkCustomColorSection" class="form-row" style="display: none;">
+          <div class="form-group">
+            <label>棒グラフの色</label>
+            <input type="color" id="bulkBarColor" value="#4a90e2">
+          </div>
+          <div class="form-group">
+            <label>タスク名の色</label>
+            <input type="color" id="bulkTextColor" value="#ffffff">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="applyBulkColors()">すべてのタスクに適用</button>
+      </div>
+
       <div style="margin-top: 20px;">
         <h3>タスク一覧</h3>
         <ul id="taskList" class="task-list"></ul>
@@ -374,6 +452,47 @@
 
     let editingTaskId = null;
 
+    // カラープリセット定義
+    const colorPresets = {
+      'blue-white': { barColor: '#4a90e2', textColor: '#ffffff' },
+      'green-white': { barColor: '#27ae60', textColor: '#ffffff' },
+      'red-white': { barColor: '#e74c3c', textColor: '#ffffff' },
+      'orange-white': { barColor: '#e67e22', textColor: '#ffffff' },
+      'purple-white': { barColor: '#9b59b6', textColor: '#ffffff' },
+      'teal-white': { barColor: '#1abc9c', textColor: '#ffffff' },
+      'indigo-white': { barColor: '#3498db', textColor: '#ffffff' },
+      'pink-white': { barColor: '#e91e63', textColor: '#ffffff' },
+      'yellow-black': { barColor: '#f1c40f', textColor: '#000000' },
+      'lightblue-darkblue': { barColor: '#87ceeb', textColor: '#003366' },
+      'lightgreen-darkgreen': { barColor: '#90ee90', textColor: '#006400' },
+      'gray-white': { barColor: '#7f8c8d', textColor: '#ffffff' }
+    };
+
+    // 色選択モードの切り替え
+    function toggleColorMode() {
+      const mode = document.querySelector('input[name="colorMode"]:checked').value;
+      const presetSection = document.getElementById('presetColorSection');
+      const customSection = document.getElementById('customColorSection');
+
+      if (mode === 'preset') {
+        presetSection.style.display = 'block';
+        customSection.style.display = 'none';
+      } else {
+        presetSection.style.display = 'none';
+        customSection.style.display = 'grid';
+      }
+    }
+
+    // プリセットを適用
+    function applyColorPreset() {
+      const presetValue = document.getElementById('colorPreset').value;
+      if (presetValue && colorPresets[presetValue]) {
+        const preset = colorPresets[presetValue];
+        document.getElementById('taskBarColor').value = preset.barColor;
+        document.getElementById('taskTextColor').value = preset.textColor;
+      }
+    }
+
     // タブ切り替え
     function switchTab(tabName) {
       document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
@@ -448,6 +567,33 @@
       document.getElementById('taskBarColor').value = task.barColor || '';
       document.getElementById('taskTextColor').value = task.textColor || '#ffffff';
 
+      // If task has colors, switch to custom mode and check if it matches a preset
+      if (task.barColor || task.textColor) {
+        let matchedPreset = null;
+        for (const [presetKey, presetValue] of Object.entries(colorPresets)) {
+          if (presetValue.barColor === task.barColor && presetValue.textColor === task.textColor) {
+            matchedPreset = presetKey;
+            break;
+          }
+        }
+
+        if (matchedPreset) {
+          // Use preset mode
+          document.querySelector('input[name="colorMode"][value="preset"]').checked = true;
+          toggleColorMode();
+          document.getElementById('colorPreset').value = matchedPreset;
+        } else {
+          // Use custom mode
+          document.querySelector('input[name="colorMode"][value="custom"]').checked = true;
+          toggleColorMode();
+        }
+      } else {
+        // No colors, use preset mode
+        document.querySelector('input[name="colorMode"][value="preset"]').checked = true;
+        toggleColorMode();
+        document.getElementById('colorPreset').value = '';
+      }
+
       editingTaskId = id;
       document.querySelector('#taskForm button[type="submit"]').textContent = 'タスクを更新';
     }
@@ -467,6 +613,11 @@
       document.getElementById('taskForm').reset();
       editingTaskId = null;
       document.querySelector('#taskForm button[type="submit"]').textContent = 'タスクを追加';
+
+      // Reset to preset mode
+      document.querySelector('input[name="colorMode"][value="preset"]').checked = true;
+      toggleColorMode();
+      document.getElementById('colorPreset').value = '';
     }
 
     function renderTaskList() {
@@ -702,6 +853,50 @@
         console.error('ダウンロードエラー:', error);
         alert('ダウンロードに失敗しました: ' + error.message);
       }
+    }
+
+    // 一括色変更
+    function toggleBulkColorMode() {
+      const mode = document.querySelector('input[name="bulkColorMode"]:checked').value;
+      const presetSection = document.getElementById('bulkPresetColorSection');
+      const customSection = document.getElementById('bulkCustomColorSection');
+
+      if (mode === 'preset') {
+        presetSection.style.display = 'block';
+        customSection.style.display = 'none';
+      } else {
+        presetSection.style.display = 'none';
+        customSection.style.display = 'grid';
+      }
+    }
+
+    function applyBulkColors() {
+      const mode = document.querySelector('input[name="bulkColorMode"]:checked').value;
+      let barColor, textColor;
+
+      if (mode === 'preset') {
+        const presetValue = document.getElementById('bulkColorPreset').value;
+        if (!presetValue) {
+          alert('プリセットを選択してください');
+          return;
+        }
+        const preset = colorPresets[presetValue];
+        barColor = preset.barColor;
+        textColor = preset.textColor;
+      } else {
+        barColor = document.getElementById('bulkBarColor').value;
+        textColor = document.getElementById('bulkTextColor').value;
+      }
+
+      // Apply colors to all tasks
+      tasks.forEach(task => {
+        task.barColor = barColor;
+        task.textColor = textColor;
+      });
+
+      renderTaskList();
+      updateChart();
+      alert('すべてのタスクに色を適用しました');
     }
 
     // 初期化

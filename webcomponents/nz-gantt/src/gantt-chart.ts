@@ -268,6 +268,8 @@ export class GanttChartElement extends LitElement {
       min-width: 32px;
       min-height: 32px;
       box-sizing: border-box;
+      position: relative;
+      overflow: visible;
     }
 
     .non-working-day {
@@ -285,9 +287,10 @@ export class GanttChartElement extends LitElement {
       color: white;
       font-size: 0.8em;
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      overflow: visible;
       box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      position: relative;
+      z-index: 10;
     }
 
     .milestone {
