@@ -190,13 +190,13 @@
       </div>
       <div class="form-group">
         <label>
-          <input type="checkbox" id="showNonWorkingDays" onchange="updateChart()">
+          <input type="checkbox" id="showNonWorkingDays" checked onchange="updateChart()">
           非営業日も表示
         </label>
       </div>
       <div class="form-group">
         <label>
-          <input type="checkbox" id="hideTaskNameColumn" onchange="updateChart()">
+          <input type="checkbox" id="hideTaskNameColumn" checked onchange="updateChart()">
           タスク名列を非表示
         </label>
       </div>
@@ -267,6 +267,14 @@
             <option value="lightblue-darkblue">ライトブルー / ダークブルー</option>
             <option value="lightgreen-darkgreen">ライトグリーン / ダークグリーン</option>
             <option value="gray-white">グレー / ホワイト</option>
+            <option value="lightyellow-darkbrown">ライトイエロー / ダークブラウン</option>
+            <option value="lightpink-darkred">ライトピンク / ダークレッド</option>
+            <option value="lightorange-darkorange">ライトオレンジ / ダークオレンジ</option>
+            <option value="lightpurple-darkpurple">ライトパープル / ダークパープル</option>
+            <option value="lightcyan-darkcyan">ライトシアン / ダークシアン</option>
+            <option value="lightgray-darkgray">ライトグレー / ダークグレー</option>
+            <option value="beige-darkbrown">ベージュ / ダークブラウン</option>
+            <option value="peach-darkpink">ピーチ / ダークピンク</option>
           </select>
         </div>
         <div id="customColorSection" class="form-row" style="display: none;">
@@ -314,6 +322,14 @@
             <option value="lightblue-darkblue">ライトブルー / ダークブルー</option>
             <option value="lightgreen-darkgreen">ライトグリーン / ダークグリーン</option>
             <option value="gray-white">グレー / ホワイト</option>
+            <option value="lightyellow-darkbrown">ライトイエロー / ダークブラウン</option>
+            <option value="lightpink-darkred">ライトピンク / ダークレッド</option>
+            <option value="lightorange-darkorange">ライトオレンジ / ダークオレンジ</option>
+            <option value="lightpurple-darkpurple">ライトパープル / ダークパープル</option>
+            <option value="lightcyan-darkcyan">ライトシアン / ダークシアン</option>
+            <option value="lightgray-darkgray">ライトグレー / ダークグレー</option>
+            <option value="beige-darkbrown">ベージュ / ダークブラウン</option>
+            <option value="peach-darkpink">ピーチ / ダークピンク</option>
           </select>
         </div>
         <div id="bulkCustomColorSection" class="form-row" style="display: none;">
@@ -428,15 +444,15 @@
   <script>
     // データストア
     let tasks = [
-      { id: 'A', name: '要件定義', duration: 3, assignee: '佐藤', dependencies: [] },
-      { id: 'B', name: 'UI設計', duration: 4, assignee: '鈴木', dependencies: ['A'] },
-      { id: 'C', name: 'UIコンポーネント設計', duration: 3, assignee: '鈴木', dependencies: ['B'] },
-      { id: 'D', name: 'API設計', duration: 5, assignee: '田中', dependencies: ['A'] },
-      { id: 'E', name: 'データベース設計', duration: 4, assignee: '田中', dependencies: ['D'] },
-      { id: 'F', name: 'フロントエンド実装', duration: 6, assignee: '山本', dependencies: ['C'] },
-      { id: 'G', name: 'バックエンド実装', duration: 8, assignee: '山本', dependencies: ['E'] },
-      { id: 'H', name: '統合テスト', duration: 5, assignee: '山本', dependencies: ['F', 'G'] },
-      { id: 'M', name: 'リリース', duration: 0, assignee: 'PM', dependencies: ['H'] }
+      { id: 'A', name: '要件定義', duration: 3, assignee: '佐藤', dependencies: [], barColor: '#87ceeb', textColor: '#003366' },
+      { id: 'B', name: 'UI設計', duration: 4, assignee: '鈴木', dependencies: ['A'], barColor: '#87ceeb', textColor: '#003366' },
+      { id: 'C', name: 'UIコンポーネント設計', duration: 3, assignee: '鈴木', dependencies: ['B'], barColor: '#87ceeb', textColor: '#003366' },
+      { id: 'D', name: 'API設計', duration: 5, assignee: '田中', dependencies: ['A'], barColor: '#87ceeb', textColor: '#003366' },
+      { id: 'E', name: 'データベース設計', duration: 4, assignee: '田中', dependencies: ['D'], barColor: '#87ceeb', textColor: '#003366' },
+      { id: 'F', name: 'フロントエンド実装', duration: 6, assignee: '山本', dependencies: ['C'], barColor: '#87ceeb', textColor: '#003366' },
+      { id: 'G', name: 'バックエンド実装', duration: 8, assignee: '山本', dependencies: ['E'], barColor: '#87ceeb', textColor: '#003366' },
+      { id: 'H', name: '統合テスト', duration: 5, assignee: '山本', dependencies: ['F', 'G'], barColor: '#87ceeb', textColor: '#003366' },
+      { id: 'M', name: 'リリース', duration: 0, assignee: 'PM', dependencies: ['H'], barColor: '#87ceeb', textColor: '#003366' }
     ];
 
     let anchors = [
@@ -471,7 +487,15 @@
       'yellow-black': { barColor: '#f1c40f', textColor: '#000000' },
       'lightblue-darkblue': { barColor: '#87ceeb', textColor: '#003366' },
       'lightgreen-darkgreen': { barColor: '#90ee90', textColor: '#006400' },
-      'gray-white': { barColor: '#7f8c8d', textColor: '#ffffff' }
+      'gray-white': { barColor: '#7f8c8d', textColor: '#ffffff' },
+      'lightyellow-darkbrown': { barColor: '#fff9c4', textColor: '#3e2723' },
+      'lightpink-darkred': { barColor: '#ffcdd2', textColor: '#b71c1c' },
+      'lightorange-darkorange': { barColor: '#ffe0b2', textColor: '#e65100' },
+      'lightpurple-darkpurple': { barColor: '#e1bee7', textColor: '#4a148c' },
+      'lightcyan-darkcyan': { barColor: '#b2ebf2', textColor: '#006064' },
+      'lightgray-darkgray': { barColor: '#e0e0e0', textColor: '#212121' },
+      'beige-darkbrown': { barColor: '#f5f5dc', textColor: '#2c1810' },
+      'peach-darkpink': { barColor: '#ffdab9', textColor: '#880e4f' }
     };
 
     // 色選択モードの切り替え
