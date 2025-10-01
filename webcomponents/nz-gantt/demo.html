@@ -656,12 +656,24 @@
 
       if (currentColorDialogContext === 'task') {
         document.getElementById('colorPreset').value = presetKey;
-        document.getElementById('selectedTaskPresetLabel').textContent = presetName;
+        const taskLabel = document.getElementById('selectedTaskPresetLabel');
+        taskLabel.textContent = presetName;
+        taskLabel.style.backgroundColor = preset.barColor;
+        taskLabel.style.color = preset.textColor;
+        taskLabel.style.padding = '4px 8px';
+        taskLabel.style.borderRadius = '4px';
+        taskLabel.style.display = 'inline-block';
         document.getElementById('taskBarColor').value = preset.barColor;
         document.getElementById('taskTextColor').value = preset.textColor;
       } else if (currentColorDialogContext === 'bulk') {
         document.getElementById('bulkColorPreset').value = presetKey;
-        document.getElementById('selectedBulkPresetLabel').textContent = presetName;
+        const bulkLabel = document.getElementById('selectedBulkPresetLabel');
+        bulkLabel.textContent = presetName;
+        bulkLabel.style.backgroundColor = preset.barColor;
+        bulkLabel.style.color = preset.textColor;
+        bulkLabel.style.padding = '4px 8px';
+        bulkLabel.style.borderRadius = '4px';
+        bulkLabel.style.display = 'inline-block';
       }
 
       closeColorDialog();
@@ -784,7 +796,13 @@
           document.querySelector('input[name="colorMode"][value="preset"]').checked = true;
           toggleColorMode();
           document.getElementById('colorPreset').value = matchedPreset;
-          document.getElementById('selectedTaskPresetLabel').textContent = colorPresetNames[matchedPreset];
+          const taskLabel = document.getElementById('selectedTaskPresetLabel');
+          taskLabel.textContent = colorPresetNames[matchedPreset];
+          taskLabel.style.backgroundColor = task.barColor;
+          taskLabel.style.color = task.textColor;
+          taskLabel.style.padding = '4px 8px';
+          taskLabel.style.borderRadius = '4px';
+          taskLabel.style.display = 'inline-block';
         } else {
           // Use custom mode
           document.querySelector('input[name="colorMode"][value="custom"]').checked = true;
@@ -795,7 +813,13 @@
         document.querySelector('input[name="colorMode"][value="preset"]').checked = true;
         toggleColorMode();
         document.getElementById('colorPreset').value = '';
-        document.getElementById('selectedTaskPresetLabel').textContent = 'プリセットを選択';
+        const taskLabel = document.getElementById('selectedTaskPresetLabel');
+        taskLabel.textContent = 'プリセットを選択';
+        taskLabel.style.backgroundColor = '';
+        taskLabel.style.color = '';
+        taskLabel.style.padding = '';
+        taskLabel.style.borderRadius = '';
+        taskLabel.style.display = '';
       }
 
       editingTaskId = id;
@@ -822,7 +846,13 @@
       document.querySelector('input[name="colorMode"][value="preset"]').checked = true;
       toggleColorMode();
       document.getElementById('colorPreset').value = '';
-      document.getElementById('selectedTaskPresetLabel').textContent = 'プリセットを選択';
+      const taskLabel = document.getElementById('selectedTaskPresetLabel');
+      taskLabel.textContent = 'プリセットを選択';
+      taskLabel.style.backgroundColor = '';
+      taskLabel.style.color = '';
+      taskLabel.style.padding = '';
+      taskLabel.style.borderRadius = '';
+      taskLabel.style.display = '';
     }
 
     function renderTaskList() {
