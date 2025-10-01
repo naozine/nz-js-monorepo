@@ -31,6 +31,8 @@ export class GanttTaskElement extends LitElement {
   @property({ type: String }) name = '';
   @property({ type: Number }) duration = 0;
   @property({ type: String }) assignee = '';
+  @property({ type: String, attribute: 'bar-color' }) barColor = '';
+  @property({ type: String, attribute: 'text-color' }) textColor = '';
 
   render() {
     return html`<slot></slot>`;
@@ -47,6 +49,8 @@ export class GanttTaskElement extends LitElement {
       duration: this.duration,
       assignee: this.assignee,
       dependsOn: dependsOnElements.map((el) => el.task).filter((t) => t),
+      barColor: this.barColor || undefined,
+      textColor: this.textColor || undefined,
     };
   }
 }
@@ -476,9 +480,19 @@ export class GanttChartElement extends LitElement {
           const endIdx = dateToIndex.get(taskEnd)!;
           const span = endIdx - startIdx + 1;
 
+          // Build inline style for task bar with custom colors
+          const barStyles = ['width: 100%;'];
+          if (task.barColor) {
+            barStyles.push(`background: ${task.barColor};`);
+          }
+          if (task.textColor) {
+            barStyles.push(`color: ${task.textColor};`);
+          }
+          const barStyleString = barStyles.join(' ');
+
           return html`
             <div class="cell task-cell ${isNonWorking ? 'non-working-day' : ''}" style="grid-column: span ${span};">
-              <div class="task-bar" style="width: 100%;">${task.name}</div>
+              <div class="task-bar" style="${barStyleString}">${task.name}</div>
             </div>
           `;
         } else {

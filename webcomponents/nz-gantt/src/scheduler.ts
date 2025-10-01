@@ -395,6 +395,8 @@ export class GanttScheduler {
         startDate,
         endDate,
         dependsOn: task.dependsOn,
+        barColor: task.barColor,
+        textColor: task.textColor,
       };
     });
   }

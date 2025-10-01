@@ -10,6 +10,8 @@ export interface TaskData {
   duration: number;
   assignee?: string;
   dependsOn: string[];
+  barColor?: string;
+  textColor?: string;
 }
 
 export interface AnchorData {
@@ -48,6 +50,8 @@ export interface ScheduledTask {
   startDate: Date; // Calculated start date
   endDate: Date; // Calculated end date
   dependsOn: string[];
+  barColor?: string;
+  textColor?: string;
 }
 
 export interface DependencyGraph {
