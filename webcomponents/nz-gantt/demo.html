@@ -73,6 +73,13 @@
     .btn-danger:hover {
       background: #c0392b;
     }
+    .btn-success {
+      background: #27ae60;
+      color: white;
+    }
+    .btn-success:hover {
+      background: #229954;
+    }
     .task-list {
       list-style: none;
       padding: 0;
@@ -165,6 +172,7 @@
     }
   </script>
   <script type="module" src="./dist/index.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
   <h1>Gantt Chart Demo - プロジェクト管理</h1>
@@ -316,6 +324,10 @@
   </div>
 
   <div class="container">
+    <div class="section-title">ガントチャート</div>
+    <div style="margin-bottom: 15px;">
+      <button class="btn btn-success" onclick="downloadChartAsPNG()">📥 PNGでダウンロード</button>
+    </div>
     <div id="ganttChartContainer"></div>
   </div>
 
@@ -589,6 +601,66 @@
       `;
 
       document.getElementById('ganttChartContainer').innerHTML = html;
+    }
+
+    // PNG ダウンロード
+    async function downloadChartAsPNG() {
+      const ganttChart = document.querySelector('gantt-chart');
+      if (!ganttChart) {
+        alert('ガントチャートが表示されていません');
+        return;
+      }
+
+      try {
+        // Shadow DOMから実際のコンテンツを取得
+        const shadowRoot = ganttChart.shadowRoot;
+        if (!shadowRoot) {
+          alert('Shadow DOMにアクセスできません');
+          return;
+        }
+
+        const ganttContainer = shadowRoot.querySelector('.gantt-container');
+        if (!ganttContainer) {
+          alert('ガントチャートコンテンツが見つかりません');
+          return;
+        }
+
+        // 元のスタイルを保存
+        const hostOriginalOverflow = ganttChart.style.overflow;
+        const hostOriginalMaxWidth = ganttChart.style.maxWidth;
+
+        // スクロールを無効化して全体を表示
+        ganttChart.style.overflow = 'visible';
+        ganttChart.style.maxWidth = 'none';
+
+        // html2canvasを使ってキャプチャ（内部コンテナを指定）
+        const canvas = await html2canvas(ganttContainer, {
+          backgroundColor: '#ffffff',
+          scale: 2, // 高解像度でキャプチャ
+          logging: false,
+          useCORS: true,
+          windowWidth: ganttContainer.scrollWidth,
+          windowHeight: ganttContainer.scrollHeight
+        });
+
+        // スタイルを元に戻す
+        ganttChart.style.overflow = hostOriginalOverflow;
+        ganttChart.style.maxWidth = hostOriginalMaxWidth;
+
+        // canvasをblobに変換してダウンロード
+        canvas.toBlob((blob) => {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+          link.download = `gantt-chart-${timestamp}.png`;
+          link.href = url;
+          link.click();
+          URL.revokeObjectURL(url);
+        });
+      } catch (error) {
+        console.error('ダウンロードエラー:', error);
+        alert('ダウンロードに失敗しました: ' + error.message);
+      }
     }
 
     // 初期化
