@@ -159,6 +159,136 @@
       background: #f0f8ff;
       border-radius: 4px;
     }
+
+    /* Color Preset Dialog Styles */
+    .color-dialog-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .color-dialog-overlay.active {
+      display: flex;
+    }
+
+    .color-dialog {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .color-dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #4a90e2;
+      padding-bottom: 10px;
+    }
+
+    .color-dialog-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .color-dialog-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .color-dialog-close:hover {
+      color: #333;
+    }
+
+    .color-preset-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .color-preset-item {
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .color-preset-item:hover {
+      border-color: #4a90e2;
+      box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+    }
+
+    .color-preset-item.selected {
+      border-color: #4a90e2;
+      background: #f0f8ff;
+    }
+
+    .color-preset-label {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .color-preset-preview {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 4px;
+      position: relative;
+    }
+
+    .color-preview-bar {
+      flex: 1;
+      height: 24px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .preset-select-button {
+      margin-top: 8px;
+      width: 100%;
+      padding: 6px;
+      background: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .preset-select-button:hover {
+      background: #357abd;
+    }
   </style>
   <script type="importmap">
     {
@@ -253,29 +383,10 @@
         </div>
         <div id="presetColorSection" class="form-group">
           <label>カラープリセット</label>
-          <select id="colorPreset" onchange="applyColorPreset()">
-            <option value="">選択してください</option>
-            <option value="blue-white">ブルー / ホワイト</option>
-            <option value="green-white">グリーン / ホワイト</option>
-            <option value="red-white">レッド / ホワイト</option>
-            <option value="orange-white">オレンジ / ホワイト</option>
-            <option value="purple-white">パープル / ホワイト</option>
-            <option value="teal-white">ティール / ホワイト</option>
-            <option value="indigo-white">インディゴ / ホワイト</option>
-            <option value="pink-white">ピンク / ホワイト</option>
-            <option value="yellow-black">イエロー / ブラック</option>
-            <option value="lightblue-darkblue">ライトブルー / ダークブルー</option>
-            <option value="lightgreen-darkgreen">ライトグリーン / ダークグリーン</option>
-            <option value="gray-white">グレー / ホワイト</option>
-            <option value="lightyellow-darkbrown">ライトイエロー / ダークブラウン</option>
-            <option value="lightpink-darkred">ライトピンク / ダークレッド</option>
-            <option value="lightorange-darkorange">ライトオレンジ / ダークオレンジ</option>
-            <option value="lightpurple-darkpurple">ライトパープル / ダークパープル</option>
-            <option value="lightcyan-darkcyan">ライトシアン / ダークシアン</option>
-            <option value="lightgray-darkgray">ライトグレー / ダークグレー</option>
-            <option value="beige-darkbrown">ベージュ / ダークブラウン</option>
-            <option value="peach-darkpink">ピーチ / ダークピンク</option>
-          </select>
+          <button type="button" class="btn btn-secondary" onclick="openColorDialog('task')" style="width: 100%;">
+            <span id="selectedTaskPresetLabel">プリセットを選択</span>
+          </button>
+          <input type="hidden" id="colorPreset">
         </div>
         <div id="customColorSection" class="form-row" style="display: none;">
           <div class="form-group">
@@ -308,29 +419,10 @@
         </div>
         <div id="bulkPresetColorSection" class="form-group">
           <label>カラープリセット</label>
-          <select id="bulkColorPreset">
-            <option value="">選択してください</option>
-            <option value="blue-white">ブルー / ホワイト</option>
-            <option value="green-white">グリーン / ホワイト</option>
-            <option value="red-white">レッド / ホワイト</option>
-            <option value="orange-white">オレンジ / ホワイト</option>
-            <option value="purple-white">パープル / ホワイト</option>
-            <option value="teal-white">ティール / ホワイト</option>
-            <option value="indigo-white">インディゴ / ホワイト</option>
-            <option value="pink-white">ピンク / ホワイト</option>
-            <option value="yellow-black">イエロー / ブラック</option>
-            <option value="lightblue-darkblue">ライトブルー / ダークブルー</option>
-            <option value="lightgreen-darkgreen">ライトグリーン / ダークグリーン</option>
-            <option value="gray-white">グレー / ホワイト</option>
-            <option value="lightyellow-darkbrown">ライトイエロー / ダークブラウン</option>
-            <option value="lightpink-darkred">ライトピンク / ダークレッド</option>
-            <option value="lightorange-darkorange">ライトオレンジ / ダークオレンジ</option>
-            <option value="lightpurple-darkpurple">ライトパープル / ダークパープル</option>
-            <option value="lightcyan-darkcyan">ライトシアン / ダークシアン</option>
-            <option value="lightgray-darkgray">ライトグレー / ダークグレー</option>
-            <option value="beige-darkbrown">ベージュ / ダークブラウン</option>
-            <option value="peach-darkpink">ピーチ / ダークピンク</option>
-          </select>
+          <button type="button" class="btn btn-secondary" onclick="openColorDialog('bulk')" style="width: 100%;">
+            <span id="selectedBulkPresetLabel">プリセットを選択</span>
+          </button>
+          <input type="hidden" id="bulkColorPreset">
         </div>
         <div id="bulkCustomColorSection" class="form-row" style="display: none;">
           <div class="form-group">
@@ -441,6 +533,19 @@
     <div id="ganttChartContainer"></div>
   </div>
 
+  <!-- Color Preset Dialog -->
+  <div id="colorDialogOverlay" class="color-dialog-overlay" onclick="closeColorDialogOnOverlay(event)">
+    <div class="color-dialog" onclick="event.stopPropagation()">
+      <div class="color-dialog-header">
+        <div class="color-dialog-title">カラープリセットを選択</div>
+        <button class="color-dialog-close" onclick="closeColorDialog()">&times;</button>
+      </div>
+      <div id="colorPresetGrid" class="color-preset-grid">
+        <!-- Preset items will be dynamically generated -->
+      </div>
+    </div>
+  </div>
+
   <script>
     // データストア
     let tasks = [
@@ -473,6 +578,7 @@
     ];
 
     let editingTaskId = null;
+    let currentColorDialogContext = null; // 'task' or 'bulk'
 
     // カラープリセット定義
     const colorPresets = {
@@ -498,6 +604,82 @@
       'peach-darkpink': { barColor: '#ffdab9', textColor: '#880e4f' }
     };
 
+    // カラープリセット名のマッピング
+    const colorPresetNames = {
+      'blue-white': 'ブルー / ホワイト',
+      'green-white': 'グリーン / ホワイト',
+      'red-white': 'レッド / ホワイト',
+      'orange-white': 'オレンジ / ホワイト',
+      'purple-white': 'パープル / ホワイト',
+      'teal-white': 'ティール / ホワイト',
+      'indigo-white': 'インディゴ / ホワイト',
+      'pink-white': 'ピンク / ホワイト',
+      'yellow-black': 'イエロー / ブラック',
+      'lightblue-darkblue': 'ライトブルー / ダークブルー',
+      'lightgreen-darkgreen': 'ライトグリーン / ダークグリーン',
+      'gray-white': 'グレー / ホワイト',
+      'lightyellow-darkbrown': 'ライトイエロー / ダークブラウン',
+      'lightpink-darkred': 'ライトピンク / ダークレッド',
+      'lightorange-darkorange': 'ライトオレンジ / ダークオレンジ',
+      'lightpurple-darkpurple': 'ライトパープル / ダークパープル',
+      'lightcyan-darkcyan': 'ライトシアン / ダークシアン',
+      'lightgray-darkgray': 'ライトグレー / ダークグレー',
+      'beige-darkbrown': 'ベージュ / ダークブラウン',
+      'peach-darkpink': 'ピーチ / ダークピンク'
+    };
+
+    // カラープリセットダイアログを開く
+    function openColorDialog(context) {
+      currentColorDialogContext = context;
+      const grid = document.getElementById('colorPresetGrid');
+
+      // プリセットアイテムを生成
+      grid.innerHTML = Object.entries(colorPresets).map(([key, colors]) => `
+        <div class="color-preset-item" data-preset="${key}" onclick="selectColorPreset('${key}')">
+          <div class="color-preset-label">${colorPresetNames[key]}</div>
+          <div class="color-preset-preview">
+            <div class="color-preview-bar" style="background: ${colors.barColor}; color: ${colors.textColor};">
+              サンプル
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // ダイアログを表示
+      document.getElementById('colorDialogOverlay').classList.add('active');
+    }
+
+    // カラープリセットを選択
+    function selectColorPreset(presetKey) {
+      const preset = colorPresets[presetKey];
+      const presetName = colorPresetNames[presetKey];
+
+      if (currentColorDialogContext === 'task') {
+        document.getElementById('colorPreset').value = presetKey;
+        document.getElementById('selectedTaskPresetLabel').textContent = presetName;
+        document.getElementById('taskBarColor').value = preset.barColor;
+        document.getElementById('taskTextColor').value = preset.textColor;
+      } else if (currentColorDialogContext === 'bulk') {
+        document.getElementById('bulkColorPreset').value = presetKey;
+        document.getElementById('selectedBulkPresetLabel').textContent = presetName;
+      }
+
+      closeColorDialog();
+    }
+
+    // ダイアログを閉じる
+    function closeColorDialog() {
+      document.getElementById('colorDialogOverlay').classList.remove('active');
+      currentColorDialogContext = null;
+    }
+
+    // オーバーレイクリックでダイアログを閉じる
+    function closeColorDialogOnOverlay(event) {
+      if (event.target.id === 'colorDialogOverlay') {
+        closeColorDialog();
+      }
+    }
+
     // 色選択モードの切り替え
     function toggleColorMode() {
       const mode = document.querySelector('input[name="colorMode"]:checked').value;
@@ -510,16 +692,6 @@
       } else {
         presetSection.style.display = 'none';
         customSection.style.display = 'grid';
-      }
-    }
-
-    // プリセットを適用
-    function applyColorPreset() {
-      const presetValue = document.getElementById('colorPreset').value;
-      if (presetValue && colorPresets[presetValue]) {
-        const preset = colorPresets[presetValue];
-        document.getElementById('taskBarColor').value = preset.barColor;
-        document.getElementById('taskTextColor').value = preset.textColor;
       }
     }
 
@@ -612,6 +784,7 @@
           document.querySelector('input[name="colorMode"][value="preset"]').checked = true;
           toggleColorMode();
           document.getElementById('colorPreset').value = matchedPreset;
+          document.getElementById('selectedTaskPresetLabel').textContent = colorPresetNames[matchedPreset];
         } else {
           // Use custom mode
           document.querySelector('input[name="colorMode"][value="custom"]').checked = true;
@@ -622,6 +795,7 @@
         document.querySelector('input[name="colorMode"][value="preset"]').checked = true;
         toggleColorMode();
         document.getElementById('colorPreset').value = '';
+        document.getElementById('selectedTaskPresetLabel').textContent = 'プリセットを選択';
       }
 
       editingTaskId = id;
@@ -648,6 +822,7 @@
       document.querySelector('input[name="colorMode"][value="preset"]').checked = true;
       toggleColorMode();
       document.getElementById('colorPreset').value = '';
+      document.getElementById('selectedTaskPresetLabel').textContent = 'プリセットを選択';
     }
 
     function renderTaskList() {
