@@ -162,6 +162,7 @@ export class GanttChartElement extends LitElement {
   @property({ type: String }) timezone = 'Asia/Tokyo';
   @property({ type: Boolean, attribute: 'show-non-working-days' }) showNonWorkingDays = false;
   @property({ type: Boolean, attribute: 'hide-task-name-column' }) hideTaskNameColumn = false;
+  @property({ attribute: false }) onTaskRightClick?: (taskId: string, taskName: string, event: MouseEvent) => void;
 
   @state() private scheduledTasks: ScheduledTask[] = [];
   @state() private error: string | null = null;
@@ -473,6 +474,13 @@ export class GanttChartElement extends LitElement {
     `;
   }
 
+  private handleTaskRightClick(event: MouseEvent, task: ScheduledTask) {
+    if (this.onTaskRightClick) {
+      event.preventDefault();
+      this.onTaskRightClick(task.id, task.name, event);
+    }
+  }
+
   private renderTaskRow(task: ScheduledTask, assigneeRowSpan: number, showAssignee: boolean) {
     const dateToIndex = new Map<string, number>();
     this.displayDates.forEach((date, idx) => {
@@ -508,7 +516,7 @@ export class GanttChartElement extends LitElement {
 
           return html`
             <div class="cell task-cell ${isNonWorking ? 'non-working-day' : ''}" style="grid-column: span ${span};">
-              <div class="task-bar" style="${barStyleString}">${task.name}</div>
+              <div class="task-bar" style="${barStyleString}" @contextmenu=${(e: MouseEvent) => this.handleTaskRightClick(e, task)}>${task.name}</div>
             </div>
           `;
         } else {

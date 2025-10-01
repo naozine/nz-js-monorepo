@@ -464,6 +464,46 @@
     .dialog-tab-content.active {
       display: block;
     }
+
+    /* Context Menu Styles */
+    .context-menu {
+      display: none;
+      position: fixed;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      z-index: 2000;
+      min-width: 150px;
+    }
+
+    .context-menu.active {
+      display: block;
+    }
+
+    .context-menu-item {
+      padding: 10px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #333;
+      border-bottom: 1px solid #eee;
+    }
+
+    .context-menu-item:last-child {
+      border-bottom: none;
+    }
+
+    .context-menu-item:hover {
+      background: #f5f5f5;
+    }
+
+    .context-menu-item.danger:hover {
+      background: #fee;
+      color: #e74c3c;
+    }
   </style>
   <script type="importmap">
     {
@@ -864,6 +904,93 @@
     </div>
   </div>
 
+  <!-- Context Menu for Task Right-Click -->
+  <div id="taskContextMenu" class="context-menu">
+    <div class="context-menu-item" onclick="contextMenuEdit(event)">
+      <span>✏️</span>
+      <span>編集</span>
+    </div>
+    <div class="context-menu-item danger" onclick="contextMenuDelete(event)">
+      <span>🗑️</span>
+      <span>削除</span>
+    </div>
+  </div>
+
+  <!-- Single Task Edit Dialog -->
+  <div id="task-edit-dialog" class="dialog-overlay" onclick="closeDialogOnOverlay(event, 'task-edit')">
+    <div class="dialog" onclick="event.stopPropagation()">
+      <div class="dialog-header">
+        <div class="dialog-title">
+          <span>✏️</span>
+          タスク編集
+        </div>
+        <button class="dialog-close" onclick="closeDialog('task-edit')">&times;</button>
+      </div>
+      <div class="dialog-content">
+        <form id="taskEditForm" onsubmit="updateSingleTask(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>タスクID *</label>
+              <input type="text" id="editTaskId" readonly style="background: #f0f0f0;">
+            </div>
+            <div class="form-group">
+              <label>タスク名 *</label>
+              <input type="text" id="editTaskName" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>期間（日数） *</label>
+              <input type="number" id="editTaskDuration" min="0" required>
+            </div>
+            <div class="form-group">
+              <label>担当者</label>
+              <input type="text" id="editTaskAssignee">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>依存タスク（カンマ区切り）</label>
+            <input type="text" id="editTaskDependencies" placeholder="例: A,B">
+          </div>
+          <div class="form-group">
+            <label>色の選択方法</label>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+              <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+                <input type="radio" name="editColorMode" value="preset" checked onchange="toggleEditColorMode()">
+                プリセット
+              </label>
+              <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+                <input type="radio" name="editColorMode" value="custom" onchange="toggleEditColorMode()">
+                カスタム
+              </label>
+            </div>
+          </div>
+          <div id="editPresetColorSection" class="form-group">
+            <label>カラープリセット</label>
+            <button type="button" class="btn btn-secondary" onclick="openColorDialog('edit')" style="width: 100%;">
+              <span id="selectedEditPresetLabel">プリセットを選択</span>
+            </button>
+            <input type="hidden" id="editColorPreset">
+          </div>
+          <div id="editCustomColorSection" class="form-row" style="display: none;">
+            <div class="form-group">
+              <label>棒グラフの色</label>
+              <input type="color" id="editTaskBarColor">
+            </div>
+            <div class="form-group">
+              <label>タスク名の色</label>
+              <input type="color" id="editTaskTextColor" value="#ffffff">
+            </div>
+          </div>
+          <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-primary">更新</button>
+            <button type="button" class="btn btn-secondary" onclick="closeDialog('task-edit')">キャンセル</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script>
     // データストア
     let tasks = [
@@ -897,6 +1024,7 @@
 
     let editingTaskId = null;
     let currentColorDialogContext = null; // 'task' or 'bulk'
+    let contextMenuTaskId = null; // Store the task ID for context menu actions
 
     // カラープリセット定義
     const colorPresets = {
@@ -992,6 +1120,17 @@
         bulkLabel.style.padding = '4px 8px';
         bulkLabel.style.borderRadius = '4px';
         bulkLabel.style.display = 'inline-block';
+      } else if (currentColorDialogContext === 'edit') {
+        document.getElementById('editColorPreset').value = presetKey;
+        const editLabel = document.getElementById('selectedEditPresetLabel');
+        editLabel.textContent = presetName;
+        editLabel.style.backgroundColor = preset.barColor;
+        editLabel.style.color = preset.textColor;
+        editLabel.style.padding = '4px 8px';
+        editLabel.style.borderRadius = '4px';
+        editLabel.style.display = 'inline-block';
+        document.getElementById('editTaskBarColor').value = preset.barColor;
+        document.getElementById('editTaskTextColor').value = preset.textColor;
       }
 
       closeColorDialog();
@@ -1015,6 +1154,21 @@
       const mode = document.querySelector('input[name="colorMode"]:checked').value;
       const presetSection = document.getElementById('presetColorSection');
       const customSection = document.getElementById('customColorSection');
+
+      if (mode === 'preset') {
+        presetSection.style.display = 'block';
+        customSection.style.display = 'none';
+      } else {
+        presetSection.style.display = 'none';
+        customSection.style.display = 'grid';
+      }
+    }
+
+    // 編集ダイアログの色選択モードの切り替え
+    function toggleEditColorMode() {
+      const mode = document.querySelector('input[name="editColorMode"]:checked').value;
+      const presetSection = document.getElementById('editPresetColorSection');
+      const customSection = document.getElementById('editCustomColorSection');
 
       if (mode === 'preset') {
         presetSection.style.display = 'block';
@@ -1184,10 +1338,6 @@
             (期間: ${task.duration}日, 担当: ${task.assignee || 'なし'})
             ${task.dependencies.length > 0 ? `<br>依存: ${task.dependencies.join(', ')}` : ''}
           </div>
-          <div class="task-item-actions">
-            <button class="btn btn-secondary" onclick="editTask('${task.id}')">編集</button>
-            <button class="btn btn-danger" onclick="deleteTask('${task.id}')">削除</button>
-          </div>
         </li>
       `).join('');
     }
@@ -1351,6 +1501,12 @@
       `;
 
       document.getElementById('ganttChartContainer').innerHTML = html;
+
+      // Set up right-click handler for gantt chart
+      const ganttChart = document.querySelector('gantt-chart');
+      if (ganttChart) {
+        ganttChart.onTaskRightClick = showContextMenu;
+      }
     }
 
     // PNG ダウンロード
@@ -1511,6 +1667,163 @@
       });
       document.getElementById('lastUpdate').textContent = `最終更新: ${timeStr}`;
     }
+
+    // コンテキストメニュー制御
+    function showContextMenu(taskId, taskName, event) {
+      contextMenuTaskId = taskId;
+      const menu = document.getElementById('taskContextMenu');
+      menu.style.left = event.pageX + 'px';
+      menu.style.top = event.pageY + 'px';
+      menu.classList.add('active');
+    }
+
+    function hideContextMenu() {
+      const menu = document.getElementById('taskContextMenu');
+      menu.classList.remove('active');
+      contextMenuTaskId = null;
+    }
+
+    function contextMenuEdit(event) {
+      if (event) event.stopPropagation();
+      if (contextMenuTaskId) {
+        hideContextMenu();
+        openEditTaskDialog(contextMenuTaskId);
+      }
+    }
+
+    function contextMenuDelete(event) {
+      if (event) event.stopPropagation();
+      if (contextMenuTaskId) {
+        const taskId = contextMenuTaskId;
+        hideContextMenu();
+        deleteTask(taskId);
+      }
+    }
+
+    // 単一タスク編集ダイアログを開く
+    function openEditTaskDialog(taskId) {
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) {
+        return;
+      }
+
+      try {
+        // Populate form fields
+        document.getElementById('editTaskId').value = task.id;
+        document.getElementById('editTaskName').value = task.name;
+        document.getElementById('editTaskDuration').value = task.duration;
+        document.getElementById('editTaskAssignee').value = task.assignee || '';
+        document.getElementById('editTaskDependencies').value = task.dependencies.join(', ');
+        document.getElementById('editTaskBarColor').value = task.barColor || '';
+        document.getElementById('editTaskTextColor').value = task.textColor || '#ffffff';
+
+        // Check if task colors match a preset
+        if (task.barColor || task.textColor) {
+          let matchedPreset = null;
+          for (const [presetKey, presetValue] of Object.entries(colorPresets)) {
+            if (presetValue.barColor === task.barColor && presetValue.textColor === task.textColor) {
+              matchedPreset = presetKey;
+              break;
+            }
+          }
+
+          if (matchedPreset) {
+            // Use preset mode
+            document.querySelector('input[name="editColorMode"][value="preset"]').checked = true;
+            toggleEditColorMode();
+            document.getElementById('editColorPreset').value = matchedPreset;
+            const editLabel = document.getElementById('selectedEditPresetLabel');
+            editLabel.textContent = colorPresetNames[matchedPreset];
+            editLabel.style.backgroundColor = task.barColor;
+            editLabel.style.color = task.textColor;
+            editLabel.style.padding = '4px 8px';
+            editLabel.style.borderRadius = '4px';
+            editLabel.style.display = 'inline-block';
+          } else {
+            // Use custom mode
+            document.querySelector('input[name="editColorMode"][value="custom"]').checked = true;
+            toggleEditColorMode();
+          }
+        } else {
+          // No colors, use preset mode
+          document.querySelector('input[name="editColorMode"][value="preset"]').checked = true;
+          toggleEditColorMode();
+          document.getElementById('editColorPreset').value = '';
+          const editLabel = document.getElementById('selectedEditPresetLabel');
+          editLabel.textContent = 'プリセットを選択';
+          editLabel.style.backgroundColor = '';
+          editLabel.style.color = '';
+          editLabel.style.padding = '';
+          editLabel.style.borderRadius = '';
+          editLabel.style.display = '';
+        }
+      } catch (error) {
+        console.error('Error setting up edit dialog:', error);
+      }
+
+      // Open dialog - this should happen regardless of any errors above
+      openDialog('task-edit');
+    }
+
+    // 単一タスクを更新
+    function updateSingleTask(event) {
+      event.preventDefault();
+
+      const id = document.getElementById('editTaskId').value.trim();
+      const name = document.getElementById('editTaskName').value.trim();
+      const duration = parseInt(document.getElementById('editTaskDuration').value);
+      const assignee = document.getElementById('editTaskAssignee').value.trim();
+      const deps = document.getElementById('editTaskDependencies').value
+        .split(',')
+        .map(d => d.trim())
+        .filter(d => d);
+
+      const index = tasks.findIndex(t => t.id === id);
+      if (index === -1) {
+        alert('タスクが見つかりません');
+        return;
+      }
+
+      const taskData = {
+        id,
+        name,
+        duration,
+        assignee,
+        dependencies: deps
+      };
+
+      // Handle color mode - check if preset or custom
+      const colorMode = document.querySelector('input[name="editColorMode"]:checked').value;
+
+      if (colorMode === 'preset') {
+        const presetValue = document.getElementById('editColorPreset').value;
+        if (presetValue && colorPresets[presetValue]) {
+          taskData.barColor = colorPresets[presetValue].barColor;
+          taskData.textColor = colorPresets[presetValue].textColor;
+        }
+      } else {
+        // Custom mode
+        const barColor = document.getElementById('editTaskBarColor').value;
+        const textColor = document.getElementById('editTaskTextColor').value;
+        if (barColor) taskData.barColor = barColor;
+        if (textColor) taskData.textColor = textColor;
+      }
+
+      tasks[index] = taskData;
+
+      closeDialog('task-edit');
+      renderTaskList();
+      updateChart();
+      updateStatusBar();
+    }
+
+    // Hide context menu when clicking anywhere else
+    document.addEventListener('click', (e) => {
+      const menu = document.getElementById('taskContextMenu');
+      if (menu && !menu.contains(e.target)) {
+        hideContextMenu();
+      }
+    });
 
     // 初期化
     renderTaskList();
