@@ -40,12 +40,12 @@ npm run build
 
     <!-- カレンダー -->
     <gantt-calendar>
-      <holiday date="2025-10-13" label="スポーツの日"></holiday>
+      <gantt-holiday date="2025-10-13" label="スポーツの日"></gantt-holiday>
     </gantt-calendar>
 
     <!-- アンカー -->
     <gantt-anchors>
-      <anchor task="A" day="1" date="2025-10-06"></anchor>
+      <gantt-anchor task="A" day="1" date="2025-10-06"></gantt-anchor>
     </gantt-anchors>
   </gantt-chart>
 </body>
@@ -106,18 +106,18 @@ npm run build
 祝祭日や例外の営業/非営業日を指定 (任意)。
 
 **子要素:**
-- 0..n × `<holiday>` … 単発の非営業日
-- 0..n × `<closed>` … 連続範囲の非営業日  
-- 0..n × `<workday>` … 例外的な営業日
+- 0..n × `<gantt-holiday>` … 単発の非営業日
+- 0..n × `<gantt-closed>` … 連続範囲の非営業日  
+- 0..n × `<gantt-workday>` … 例外的な営業日
 
 **優先順位:**
-1. `<workday>` (強制営業)
-2. `<holiday>` / `<closed>` (強制休業)
+1. `<gantt-workday>` (強制営業)
+2. `<gantt-holiday>` / `<gantt-closed>` (強制休業)
 3. `working-days` (週次パターン)
 
 ---
 
-### `<holiday>`
+### `<gantt-holiday>`
 
 単発の非営業日を定義。
 
@@ -127,7 +127,7 @@ npm run build
 
 ---
 
-### `<closed>`
+### `<gantt-closed>`
 
 連続範囲の非営業日を定義。
 
@@ -138,7 +138,7 @@ npm run build
 
 ---
 
-### `<workday>`
+### `<gantt-workday>`
 
 例外的な営業日を定義 (通常は休業だが営業する日)。
 
@@ -153,7 +153,7 @@ npm run build
 タスクの「n日目」を暦日に固定するためのアンカー群。
 
 **子要素:**
-- 1..n × `<anchor>`
+- 1..n × `<gantt-anchor>`
 
 **注意:**
 - 少なくとも1つのアンカーが必要
@@ -161,7 +161,7 @@ npm run build
 
 ---
 
-### `<anchor>`
+### `<gantt-anchor>`
 
 タスクの特定日を暦日に固定。
 
@@ -224,15 +224,15 @@ npm run build
 
   <!-- カレンダー（祝祭日等） -->
   <gantt-calendar>
-    <holiday date="2025-10-13" label="スポーツの日"></holiday>
-    <closed from="2025-12-28" to="2026-01-05" label="年末年始"></closed>
-    <workday date="2025-10-12" label="特別稼働日"></workday>
+    <gantt-holiday date="2025-10-13" label="スポーツの日"></gantt-holiday>
+    <gantt-closed from="2025-12-28" to="2026-01-05" label="年末年始"></gantt-closed>
+    <gantt-workday date="2025-10-12" label="特別稼働日"></gantt-workday>
   </gantt-calendar>
 
   <!-- アンカー：Aの1日目=2025-10-06、Dの5日目=2025-11-04 -->
   <gantt-anchors>
-    <anchor task="A" day="1" date="2025-10-06"></anchor>
-    <anchor task="D" day="5" date="2025-11-04"></anchor>
+    <gantt-anchor task="A" day="1" date="2025-10-06"></gantt-anchor>
+    <gantt-anchor task="D" day="5" date="2025-11-04"></gantt-anchor>
   </gantt-anchors>
 </gantt-chart>
 ```

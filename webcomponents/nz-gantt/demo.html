@@ -56,15 +56,15 @@
 
       <!-- カレンダー（祝祭日等） -->
       <gantt-calendar>
-        <holiday date="2025-10-13" label="スポーツの日"></holiday>
-        <closed from="2025-12-28" to="2026-01-05" label="年末年始"></closed>
-        <workday date="2025-10-12" label="特別稼働日"></workday>
+        <gantt-holiday date="2025-10-13" label="スポーツの日"></gantt-holiday>
+        <gantt-closed from="2025-12-28" to="2026-01-05" label="年末年始"></gantt-closed>
+        <gantt-workday date="2025-10-12" label="特別稼働日"></gantt-workday>
       </gantt-calendar>
 
       <!-- アンカー：Aの1日目=2025-10-06、Dの5日目=2025-11-04（全体の基準） -->
       <gantt-anchors>
-        <anchor task="A" day="1" date="2025-10-06"></anchor>
-        <anchor task="D" day="5" date="2025-11-04"></anchor>
+        <gantt-anchor task="A" day="1" date="2025-10-06"></gantt-anchor>
+        <gantt-anchor task="D" day="5" date="2025-11-04"></gantt-anchor>
       </gantt-anchors>
     </gantt-chart>
   </div>

@@ -52,9 +52,9 @@ export class GanttTaskElement extends LitElement {
 }
 
 /**
- * Child element: <holiday>
+ * Child element: <gantt-holiday>
  */
-@customElement('holiday')
+@customElement('gantt-holiday')
 export class HolidayElement extends LitElement {
   @property({ type: String }) date = '';
   @property({ type: String }) label = '';
@@ -65,9 +65,9 @@ export class HolidayElement extends LitElement {
 }
 
 /**
- * Child element: <closed>
+ * Child element: <gantt-closed>
  */
-@customElement('closed')
+@customElement('gantt-closed')
 export class ClosedElement extends LitElement {
   @property({ type: String }) from = '';
   @property({ type: String }) to = '';
@@ -79,9 +79,9 @@ export class ClosedElement extends LitElement {
 }
 
 /**
- * Child element: <workday>
+ * Child element: <gantt-workday>
  */
-@customElement('workday')
+@customElement('gantt-workday')
 export class WorkdayElement extends LitElement {
   @property({ type: String }) date = '';
   @property({ type: String }) label = '';
@@ -101,9 +101,9 @@ export class GanttCalendarElement extends LitElement {
   }
 
   getCalendarData(): CalendarData {
-    const holidays = Array.from(this.querySelectorAll('holiday')) as HolidayElement[];
-    const closedPeriods = Array.from(this.querySelectorAll('closed')) as ClosedElement[];
-    const workdays = Array.from(this.querySelectorAll('workday')) as WorkdayElement[];
+    const holidays = Array.from(this.querySelectorAll('gantt-holiday')) as HolidayElement[];
+    const closedPeriods = Array.from(this.querySelectorAll('gantt-closed')) as ClosedElement[];
+    const workdays = Array.from(this.querySelectorAll('gantt-workday')) as WorkdayElement[];
 
     return {
       holidays: holidays.map((h) => ({ date: h.date, label: h.label })),
@@ -114,9 +114,9 @@ export class GanttCalendarElement extends LitElement {
 }
 
 /**
- * Child element: <anchor>
+ * Child element: <gantt-anchor>
  */
-@customElement('anchor')
+@customElement('gantt-anchor')
 export class AnchorElement extends LitElement {
   @property({ type: String }) task = '';
   @property({ type: Number }) day = 1;
@@ -137,7 +137,7 @@ export class GanttAnchorsElement extends LitElement {
   }
 
   getAnchors(): AnchorData[] {
-    const anchors = Array.from(this.querySelectorAll('anchor')) as AnchorElement[];
+    const anchors = Array.from(this.querySelectorAll('gantt-anchor')) as AnchorElement[];
     return anchors.map((a) => ({
       task: a.task,
       day: a.day,
@@ -507,9 +507,9 @@ declare global {
     'gantt-calendar': GanttCalendarElement;
     'gantt-anchors': GanttAnchorsElement;
     'depends-on': DependsOnElement;
-    'anchor': AnchorElement;
-    'holiday': HolidayElement;
-    'closed': ClosedElement;
-    'workday': WorkdayElement;
+    'gantt-anchor': AnchorElement;
+    'gantt-holiday': HolidayElement;
+    'gantt-closed': ClosedElement;
+    'gantt-workday': WorkdayElement;
   }
 }
