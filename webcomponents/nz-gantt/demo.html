@@ -289,6 +289,181 @@
     .preset-select-button:hover {
       background: #357abd;
     }
+
+    /* New Layout Styles */
+    .header {
+      background: white;
+      padding: 20px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .header h1 {
+      margin: 0 0 20px 0;
+      color: #333;
+      font-size: 24px;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .header-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      background: #f8f9fa;
+      color: #495057;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .header-btn:hover {
+      background: #4a90e2;
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
+    }
+
+    .btn-icon {
+      font-size: 16px;
+    }
+
+    .status-bar {
+      background: #e9ecef;
+      padding: 10px 20px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #6c757d;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .separator {
+      color: #adb5bd;
+    }
+
+    .main-chart-container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    /* Dialog Styles */
+    .dialog-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dialog-overlay.active {
+      display: flex;
+    }
+
+    .dialog {
+      background: white;
+      border-radius: 8px;
+      max-width: 800px;
+      max-height: 90vh;
+      width: 90%;
+      overflow-y: auto;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid #dee2e6;
+      background: #f8f9fa;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .dialog-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dialog-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+
+    .dialog-close:hover {
+      background: #e9ecef;
+      color: #333;
+    }
+
+    .dialog-content {
+      padding: 20px;
+    }
+
+    .dialog-tabs {
+      display: flex;
+      border-bottom: 2px solid #dee2e6;
+      margin-bottom: 20px;
+    }
+
+    .dialog-tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-size: 14px;
+      font-weight: 500;
+      color: #666;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .dialog-tab.active {
+      color: #4a90e2;
+      border-bottom-color: #4a90e2;
+    }
+
+    .dialog-tab-content {
+      display: none;
+    }
+
+    .dialog-tab-content.active {
+      display: block;
+    }
   </style>
   <script type="importmap">
     {
@@ -305,45 +480,107 @@
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
-  <h1>Gantt Chart Demo - プロジェクト管理</h1>
-
-  <div class="container">
-    <div class="section-title">ガントチャート設定</div>
-    <div class="chart-config">
-      <div class="form-group">
-        <label>営業日:</label>
-        <input type="text" id="workingDays" value="月,火,水,木,金">
-      </div>
-      <div class="form-group">
-        <label>ロケール:</label>
-        <input type="text" id="locale" value="ja-JP">
-      </div>
-      <div class="form-group">
-        <label>
-          <input type="checkbox" id="showNonWorkingDays" checked onchange="updateChart()">
-          非営業日も表示
-        </label>
-      </div>
-      <div class="form-group">
-        <label>
-          <input type="checkbox" id="hideTaskNameColumn" checked onchange="updateChart()">
-          タスク名列を非表示
-        </label>
-      </div>
+  <!-- ヘッダー -->
+  <div class="header">
+    <h1>Gantt Chart Demo - プロジェクト管理</h1>
+    <div class="header-buttons">
+      <button class="header-btn" onclick="openDialog('chart-settings')">
+        <span class="btn-icon">📊</span>
+        <span class="btn-text">チャート設定</span>
+      </button>
+      <button class="header-btn" onclick="openDialog('task-management')">
+        <span class="btn-icon">📝</span>
+        <span class="btn-text">タスク管理</span>
+      </button>
+      <button class="header-btn" onclick="openDialog('anchor-management')">
+        <span class="btn-icon">⚓</span>
+        <span class="btn-text">アンカー</span>
+      </button>
+      <button class="header-btn" onclick="openDialog('calendar-management')">
+        <span class="btn-icon">📅</span>
+        <span class="btn-text">カレンダー</span>
+      </button>
+      <button class="header-btn" onclick="openDialog('color-settings')">
+        <span class="btn-icon">🎨</span>
+        <span class="btn-text">色設定</span>
+      </button>
+      <button class="header-btn" onclick="openDialog('export-settings')">
+        <span class="btn-icon">📥</span>
+        <span class="btn-text">エクスポート</span>
+      </button>
     </div>
-    <button class="btn btn-primary" onclick="updateChart()">チャートを更新</button>
   </div>
 
-  <div class="container">
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab('tasks')">タスク</button>
-      <button class="tab" onclick="switchTab('anchors')">アンカー</button>
-      <button class="tab" onclick="switchTab('calendar')">カレンダー</button>
-    </div>
+  <!-- ステータスバー -->
+  <div class="status-bar">
+    <span id="taskCount">タスク数: 9</span>
+    <span class="separator">|</span>
+    <span id="anchorCount">アンカー: 2</span>
+    <span class="separator">|</span>
+    <span id="workingDaysInfo">営業日: 月-金</span>
+    <span class="separator">|</span>
+    <span id="lastUpdate">最終更新: --</span>
+  </div>
 
-    <div id="tasks-tab" class="tab-content active">
-      <div class="section-title">タスク管理</div>
-      <form id="taskForm" onsubmit="addTask(event)">
+  <!-- メインガントチャート -->
+  <div class="main-chart-container">
+    <div id="ganttChartContainer"></div>
+  </div>
+
+  <!-- チャート設定ダイアログ -->
+  <div id="chart-settings-dialog" class="dialog-overlay" onclick="closeDialogOnOverlay(event, 'chart-settings')">
+    <div class="dialog" onclick="event.stopPropagation()">
+      <div class="dialog-header">
+        <div class="dialog-title">
+          <span>📊</span>
+          チャート設定
+        </div>
+        <button class="dialog-close" onclick="closeDialog('chart-settings')">&times;</button>
+      </div>
+      <div class="dialog-content">
+        <div class="form-row">
+          <div class="form-group">
+            <label>営業日:</label>
+            <input type="text" id="workingDays" value="月,火,水,木,金">
+          </div>
+          <div class="form-group">
+            <label>ロケール:</label>
+            <input type="text" id="locale" value="ja-JP">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="showNonWorkingDays" checked onchange="updateChart()">
+            非営業日も表示
+          </label>
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="hideTaskNameColumn" checked onchange="updateChart()">
+            タスク名列を非表示
+          </label>
+        </div>
+        <div style="margin-top: 20px;">
+          <button class="btn btn-primary" onclick="updateChart(); updateStatusBar();">設定を適用</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- タスク管理ダイアログ -->
+  <div id="task-management-dialog" class="dialog-overlay" onclick="closeDialogOnOverlay(event, 'task-management')">
+    <div class="dialog" onclick="event.stopPropagation()">
+      <div class="dialog-header">
+        <div class="dialog-title">
+          <span>📝</span>
+          タスク管理
+        </div>
+        <button class="dialog-close" onclick="closeDialog('task-management')">&times;</button>
+      </div>
+      <div class="dialog-content">
+
+        <div class="section-title">新規タスク追加</div>
+        <form id="taskForm" onsubmit="addTask(event)">
         <div class="form-row">
           <div class="form-group">
             <label>タスクID *</label>
@@ -398,12 +635,147 @@
             <input type="color" id="taskTextColor" value="#ffffff">
           </div>
         </div>
-        <button type="submit" class="btn btn-primary">タスクを追加</button>
-        <button type="button" class="btn btn-secondary" onclick="resetTaskForm()">リセット</button>
-      </form>
+          <button type="submit" class="btn btn-primary">タスクを追加</button>
+          <button type="button" class="btn btn-secondary" onclick="resetTaskForm()">リセット</button>
+        </form>
 
-      <div style="margin-top: 30px; padding: 15px; background: #fff8e1; border-radius: 4px; border: 1px solid #ffc107;">
-        <h3 style="margin-top: 0; margin-bottom: 15px;">タスクの色を一括変更</h3>
+        <div style="margin-top: 30px;">
+          <div class="section-title">タスク一覧</div>
+          <ul id="taskList" class="task-list"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- アンカー管理ダイアログ -->
+  <div id="anchor-management-dialog" class="dialog-overlay" onclick="closeDialogOnOverlay(event, 'anchor-management')">
+    <div class="dialog" onclick="event.stopPropagation()">
+      <div class="dialog-header">
+        <div class="dialog-title">
+          <span>⚓</span>
+          アンカー管理
+        </div>
+        <button class="dialog-close" onclick="closeDialog('anchor-management')">&times;</button>
+      </div>
+      <div class="dialog-content">
+        <div class="section-title">新規アンカー追加</div>
+        <form id="anchorForm" onsubmit="addAnchor(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>タスクID *</label>
+              <input type="text" id="anchorTaskId" required>
+            </div>
+            <div class="form-group">
+              <label>日目 *</label>
+              <input type="number" id="anchorDay" min="1" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>日付 (YYYY-MM-DD) *</label>
+            <input type="date" id="anchorDate" required>
+          </div>
+          <button type="submit" class="btn btn-primary">アンカーを追加</button>
+          <button type="button" class="btn btn-secondary" onclick="resetAnchorForm()">リセット</button>
+        </form>
+
+        <div style="margin-top: 30px;">
+          <div class="section-title">アンカー一覧</div>
+          <ul id="anchorList" class="anchor-list"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- カレンダー管理ダイアログ -->
+  <div id="calendar-management-dialog" class="dialog-overlay" onclick="closeDialogOnOverlay(event, 'calendar-management')">
+    <div class="dialog" onclick="event.stopPropagation()">
+      <div class="dialog-header">
+        <div class="dialog-title">
+          <span>📅</span>
+          カレンダー管理
+        </div>
+        <button class="dialog-close" onclick="closeDialog('calendar-management')">&times;</button>
+      </div>
+      <div class="dialog-content">
+        <div class="dialog-tabs">
+          <button class="dialog-tab active" onclick="switchDialogTab('holidays')">祝日</button>
+          <button class="dialog-tab" onclick="switchDialogTab('closed')">休業期間</button>
+          <button class="dialog-tab" onclick="switchDialogTab('workdays')">特別営業日</button>
+        </div>
+
+        <!-- 祝日タブ -->
+        <div id="holidays-tab" class="dialog-tab-content active">
+          <form id="holidayForm" onsubmit="addHoliday(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label>日付 (YYYY-MM-DD) *</label>
+                <input type="date" id="holidayDate" required>
+              </div>
+              <div class="form-group">
+                <label>ラベル</label>
+                <input type="text" id="holidayLabel">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">祝日を追加</button>
+          </form>
+          <ul id="holidayList" class="calendar-list" style="margin-top: 20px;"></ul>
+        </div>
+
+        <!-- 休業期間タブ -->
+        <div id="closed-tab" class="dialog-tab-content">
+          <form id="closedForm" onsubmit="addClosed(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label>開始日 (YYYY-MM-DD) *</label>
+                <input type="date" id="closedFrom" required>
+              </div>
+              <div class="form-group">
+                <label>終了日 (YYYY-MM-DD) *</label>
+                <input type="date" id="closedTo" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>ラベル</label>
+              <input type="text" id="closedLabel">
+            </div>
+            <button type="submit" class="btn btn-primary">休業期間を追加</button>
+          </form>
+          <ul id="closedList" class="calendar-list" style="margin-top: 20px;"></ul>
+        </div>
+
+        <!-- 特別営業日タブ -->
+        <div id="workdays-tab" class="dialog-tab-content">
+          <form id="workdayForm" onsubmit="addWorkday(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label>日付 (YYYY-MM-DD) *</label>
+                <input type="date" id="workdayDate" required>
+              </div>
+              <div class="form-group">
+                <label>ラベル</label>
+                <input type="text" id="workdayLabel">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">特別営業日を追加</button>
+          </form>
+          <ul id="workdayList" class="calendar-list" style="margin-top: 20px;"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 色設定ダイアログ -->
+  <div id="color-settings-dialog" class="dialog-overlay" onclick="closeDialogOnOverlay(event, 'color-settings')">
+    <div class="dialog" onclick="event.stopPropagation()">
+      <div class="dialog-header">
+        <div class="dialog-title">
+          <span>🎨</span>
+          色設定
+        </div>
+        <button class="dialog-close" onclick="closeDialog('color-settings')">&times;</button>
+      </div>
+      <div class="dialog-content">
+        <div class="section-title">タスクの色を一括変更</div>
         <div class="form-group">
           <label>色の選択方法</label>
           <div style="display: flex; gap: 10px; margin-bottom: 10px;">
@@ -436,101 +808,47 @@
         </div>
         <button class="btn btn-primary" onclick="applyBulkColors()">すべてのタスクに適用</button>
       </div>
-
-      <div style="margin-top: 20px;">
-        <h3>タスク一覧</h3>
-        <ul id="taskList" class="task-list"></ul>
-      </div>
-    </div>
-
-    <div id="anchors-tab" class="tab-content">
-      <div class="section-title">アンカー管理</div>
-      <form id="anchorForm" onsubmit="addAnchor(event)">
-        <div class="form-row">
-          <div class="form-group">
-            <label>タスクID *</label>
-            <input type="text" id="anchorTaskId" required>
-          </div>
-          <div class="form-group">
-            <label>日目 *</label>
-            <input type="number" id="anchorDay" min="1" required>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>日付 (YYYY-MM-DD) *</label>
-          <input type="date" id="anchorDate" required>
-        </div>
-        <button type="submit" class="btn btn-primary">アンカーを追加</button>
-        <button type="button" class="btn btn-secondary" onclick="resetAnchorForm()">リセット</button>
-      </form>
-      <div style="margin-top: 20px;">
-        <h3>アンカー一覧</h3>
-        <ul id="anchorList" class="anchor-list"></ul>
-      </div>
-    </div>
-
-    <div id="calendar-tab" class="tab-content">
-      <div class="section-title">カレンダー管理</div>
-      <h3>祝日</h3>
-      <form id="holidayForm" onsubmit="addHoliday(event)">
-        <div class="form-row">
-          <div class="form-group">
-            <label>日付 (YYYY-MM-DD) *</label>
-            <input type="date" id="holidayDate" required>
-          </div>
-          <div class="form-group">
-            <label>ラベル</label>
-            <input type="text" id="holidayLabel">
-          </div>
-        </div>
-        <button type="submit" class="btn btn-primary">祝日を追加</button>
-      </form>
-      <ul id="holidayList" class="calendar-list"></ul>
-
-      <h3 style="margin-top: 20px;">休業期間</h3>
-      <form id="closedForm" onsubmit="addClosed(event)">
-        <div class="form-row">
-          <div class="form-group">
-            <label>開始日 (YYYY-MM-DD) *</label>
-            <input type="date" id="closedFrom" required>
-          </div>
-          <div class="form-group">
-            <label>終了日 (YYYY-MM-DD) *</label>
-            <input type="date" id="closedTo" required>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>ラベル</label>
-          <input type="text" id="closedLabel">
-        </div>
-        <button type="submit" class="btn btn-primary">休業期間を追加</button>
-      </form>
-      <ul id="closedList" class="calendar-list"></ul>
-
-      <h3 style="margin-top: 20px;">特別営業日</h3>
-      <form id="workdayForm" onsubmit="addWorkday(event)">
-        <div class="form-row">
-          <div class="form-group">
-            <label>日付 (YYYY-MM-DD) *</label>
-            <input type="date" id="workdayDate" required>
-          </div>
-          <div class="form-group">
-            <label>ラベル</label>
-            <input type="text" id="workdayLabel">
-          </div>
-        </div>
-        <button type="submit" class="btn btn-primary">特別営業日を追加</button>
-      </form>
-      <ul id="workdayList" class="calendar-list"></ul>
     </div>
   </div>
 
-  <div class="container">
-    <div class="section-title">ガントチャート</div>
-    <div style="margin-bottom: 15px;">
-      <button class="btn btn-success" onclick="downloadChartAsPNG()">📥 PNGでダウンロード</button>
+  <!-- エクスポートダイアログ -->
+  <div id="export-settings-dialog" class="dialog-overlay" onclick="closeDialogOnOverlay(event, 'export-settings')">
+    <div class="dialog" onclick="event.stopPropagation()">
+      <div class="dialog-header">
+        <div class="dialog-title">
+          <span>📥</span>
+          エクスポート
+        </div>
+        <button class="dialog-close" onclick="closeDialog('export-settings')">&times;</button>
+      </div>
+      <div class="dialog-content">
+        <div class="section-title">ファイル形式</div>
+        <div class="form-group">
+          <label>
+            <input type="radio" name="exportFormat" value="png" checked>
+            PNG (ビットマップ画像)
+          </label>
+        </div>
+        <div class="section-title" style="margin-top: 30px;">オプション</div>
+        <div class="form-group">
+          <label>版質:</label>
+          <select id="exportQuality">
+            <option value="1">標準 (1x)</option>
+            <option value="2" selected>高画質 (2x)</option>
+            <option value="3">最高画質 (3x)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="transparentBackground">
+            透明背景
+          </label>
+        </div>
+        <div style="margin-top: 20px;">
+          <button class="btn btn-success" onclick="downloadChartAsPNG()">📥 ダウンロード</button>
+        </div>
+      </div>
     </div>
-    <div id="ganttChartContainer"></div>
   </div>
 
   <!-- Color Preset Dialog -->
@@ -760,6 +1078,7 @@
       resetTaskForm();
       renderTaskList();
       updateChart();
+      updateStatusBar();
     }
 
     function editTask(id) {
@@ -835,6 +1154,7 @@
       renderTaskList();
       renderAnchorList();
       updateChart();
+      updateStatusBar();
     }
 
     function resetTaskForm() {
@@ -889,12 +1209,14 @@
       resetAnchorForm();
       renderAnchorList();
       updateChart();
+      updateStatusBar();
     }
 
     function deleteAnchor(index) {
       anchors.splice(index, 1);
       renderAnchorList();
       updateChart();
+      updateStatusBar();
     }
 
     function resetAnchorForm() {
@@ -1135,6 +1457,61 @@
       alert('すべてのタスクに色を適用しました');
     }
 
+    // ダイアログ制御
+    function openDialog(dialogName) {
+      const dialog = document.getElementById(`${dialogName}-dialog`);
+      if (dialog) {
+        dialog.classList.add('active');
+      }
+    }
+
+    function closeDialog(dialogName) {
+      const dialog = document.getElementById(`${dialogName}-dialog`);
+      if (dialog) {
+        dialog.classList.remove('active');
+      }
+    }
+
+    function closeDialogOnOverlay(event, dialogName) {
+      if (event.target.classList.contains('dialog-overlay')) {
+        closeDialog(dialogName);
+      }
+    }
+
+    // ダイアログタブ切り替え
+    function switchDialogTab(tabName) {
+      const tabButtons = event.target.parentElement.querySelectorAll('.dialog-tab');
+      const tabContents = event.target.closest('.dialog-content').querySelectorAll('.dialog-tab-content');
+
+      tabButtons.forEach(tab => tab.classList.remove('active'));
+      tabContents.forEach(content => content.classList.remove('active'));
+
+      event.target.classList.add('active');
+      const targetContent = document.getElementById(`${tabName}-tab`);
+      if (targetContent) {
+        targetContent.classList.add('active');
+      }
+    }
+
+    // ステータスバー更新
+    function updateStatusBar() {
+      document.getElementById('taskCount').textContent = `タスク数: ${tasks.length}`;
+      document.getElementById('anchorCount').textContent = `アンカー: ${anchors.length}`;
+
+      const workingDays = document.getElementById('workingDays').value;
+      document.getElementById('workingDaysInfo').textContent = `営業日: ${workingDays}`;
+
+      const now = new Date();
+      const timeStr = now.toLocaleString('ja-JP', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      document.getElementById('lastUpdate').textContent = `最終更新: ${timeStr}`;
+    }
+
     // 初期化
     renderTaskList();
     renderAnchorList();
@@ -1142,6 +1519,7 @@
     renderClosedList();
     renderWorkdayList();
     updateChart();
+    updateStatusBar();
   </script>
 </body>
 </html>
