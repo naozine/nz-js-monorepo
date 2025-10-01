@@ -156,10 +156,12 @@ export class GanttChartElement extends LitElement {
   @property({ type: String, attribute: 'working-days' }) workingDays = '月,火,水,木,金';
   @property({ type: String }) locale = 'ja-JP';
   @property({ type: String }) timezone = 'Asia/Tokyo';
+  @property({ type: Boolean, attribute: 'show-non-working-days' }) showNonWorkingDays = false;
 
   @state() private scheduledTasks: ScheduledTask[] = [];
   @state() private error: string | null = null;
   @state() private displayDates: Date[] = [];
+  @state() private scheduler: GanttScheduler | null = null;
 
   static styles = css`
     :host {
@@ -248,6 +250,11 @@ export class GanttChartElement extends LitElement {
       box-sizing: border-box;
     }
 
+    .non-working-day {
+      background: #f0f0f0;
+      opacity: 0.6;
+    }
+
     .task-bar {
       background: #4a90e2;
       height: 20px;
@@ -306,11 +313,11 @@ export class GanttChartElement extends LitElement {
       const workingDaysList = this.workingDays.split(',').map((d) => d.trim());
 
       // Create scheduler and schedule tasks
-      const scheduler = new GanttScheduler(workingDaysList, calendar);
-      this.scheduledTasks = scheduler.schedule(tasks, anchors);
+      this.scheduler = new GanttScheduler(workingDaysList, calendar);
+      this.scheduledTasks = this.scheduler.schedule(tasks, anchors);
 
       // Calculate display range
-      this.calculateDisplayRange(scheduler);
+      this.calculateDisplayRange(this.scheduler);
 
       this.error = null;
     } catch (err) {
@@ -340,11 +347,11 @@ export class GanttChartElement extends LitElement {
     const paddedEnd = new Date(maxDate);
     paddedEnd.setDate(paddedEnd.getDate() + 7);
 
-    // Generate all working days in range
+    // Generate dates in range
     const dates: Date[] = [];
     const current = new Date(paddedStart);
     while (current <= paddedEnd) {
-      if (scheduler.isWorkingDay(current)) {
+      if (this.showNonWorkingDays || scheduler.isWorkingDay(current)) {
         dates.push(new Date(current));
       }
       current.setDate(current.getDate() + 1);
@@ -403,11 +410,14 @@ export class GanttChartElement extends LitElement {
       <div class="cell row-header-cell">タスク名</div>
       <div style="display: grid; grid-template-columns: repeat(${this.displayDates.length}, 1fr);">
         ${this.displayDates.map(
-          (date) => html`
-            <div class="cell col-header-cell">
-              ${String(date.getDate()).padStart(2, '0')}
-            </div>
-          `
+          (date) => {
+            const isNonWorking = this.scheduler && !this.scheduler.isWorkingDay(date);
+            return html`
+              <div class="cell col-header-cell ${isNonWorking ? 'non-working-day' : ''}">
+                ${String(date.getDate()).padStart(2, '0')}
+              </div>
+            `;
+          }
         )}
       </div>
 
@@ -416,11 +426,14 @@ export class GanttChartElement extends LitElement {
       <div class="cell row-header-cell"></div>
       <div style="display: grid; grid-template-columns: repeat(${this.displayDates.length}, 1fr);">
         ${this.displayDates.map(
-          (date) => html`
-            <div class="cell col-header-cell col-header-weekday">
-              ${WEEKDAY_NAMES_JA[date.getDay()]}
-            </div>
-          `
+          (date) => {
+            const isNonWorking = this.scheduler && !this.scheduler.isWorkingDay(date);
+            return html`
+              <div class="cell col-header-cell col-header-weekday ${isNonWorking ? 'non-working-day' : ''}">
+                ${WEEKDAY_NAMES_JA[date.getDay()]}
+              </div>
+            `;
+          }
         )}
       </div>
     `;
@@ -436,6 +449,7 @@ export class GanttChartElement extends LitElement {
       const dateStr = this.formatDate(date);
       const taskStart = this.formatDate(task.startDate);
       const taskEnd = this.formatDate(task.endDate);
+      const isNonWorking = this.scheduler && !this.scheduler.isWorkingDay(date);
 
       let content = null;
       if (dateStr >= taskStart && dateStr <= taskEnd) {
@@ -449,7 +463,7 @@ export class GanttChartElement extends LitElement {
           const span = endIdx - startIdx + 1;
 
           return html`
-            <div class="cell task-cell" style="grid-column: span ${span};">
+            <div class="cell task-cell ${isNonWorking ? 'non-working-day' : ''}" style="grid-column: span ${span};">
               <div class="task-bar" style="width: 100%;">${task.name}</div>
             </div>
           `;
@@ -460,7 +474,7 @@ export class GanttChartElement extends LitElement {
       }
 
       return html`
-        <div class="cell task-cell">
+        <div class="cell task-cell ${isNonWorking ? 'non-working-day' : ''}">
           ${content}
         </div>
       `;

@@ -180,6 +180,12 @@
         <label>ロケール:</label>
         <input type="text" id="locale" value="ja-JP">
       </div>
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="showNonWorkingDays" onchange="updateChart()">
+          非営業日も表示
+        </label>
+      </div>
     </div>
     <button class="btn btn-primary" onclick="updateChart()">チャートを更新</button>
   </div>
@@ -560,9 +566,10 @@
     function updateChart() {
       const workingDays = document.getElementById('workingDays').value;
       const locale = document.getElementById('locale').value;
+      const showNonWorkingDays = document.getElementById('showNonWorkingDays').checked;
 
       let html = `
-        <gantt-chart working-days="${workingDays}" locale="${locale}" timezone="Asia/Tokyo">
+        <gantt-chart working-days="${workingDays}" locale="${locale}" timezone="Asia/Tokyo" ${showNonWorkingDays ? 'show-non-working-days' : ''}>
           ${tasks.map(task => `
             <gantt-task id="${task.id}" name="${task.name}" duration="${task.duration}" assignee="${task.assignee || ''}">
               ${task.dependencies.map(dep => `<depends-on task="${dep}"></depends-on>`).join('\n              ')}
