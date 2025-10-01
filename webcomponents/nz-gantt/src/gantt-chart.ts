@@ -161,6 +161,7 @@ export class GanttChartElement extends LitElement {
   @property({ type: String }) locale = 'ja-JP';
   @property({ type: String }) timezone = 'Asia/Tokyo';
   @property({ type: Boolean, attribute: 'show-non-working-days' }) showNonWorkingDays = false;
+  @property({ type: Boolean, attribute: 'hide-task-name-column' }) hideTaskNameColumn = false;
 
   @state() private scheduledTasks: ScheduledTask[] = [];
   @state() private error: string | null = null;
@@ -193,6 +194,18 @@ export class GanttChartElement extends LitElement {
       grid-template-columns: auto auto 1fr;
       border: 1px solid #ccc;
       background: white;
+    }
+
+    :host([hide-task-name-column]) .gantt-grid {
+      grid-template-columns: auto 0 1fr;
+    }
+
+    :host([hide-task-name-column]) .task-name-cell {
+      width: 0;
+      min-width: 0;
+      padding: 0;
+      border: none;
+      overflow: hidden;
     }
 
     .header-row {
@@ -414,7 +427,7 @@ export class GanttChartElement extends LitElement {
     return html`
       <!-- Month row -->
       <div class="cell row-header-cell" style="grid-row: span 3;">担当者</div>
-      <div class="cell row-header-cell" style="grid-row: span 3;">タスク名</div>
+      <div class="cell row-header-cell task-name-cell" style="grid-row: span 3;">タスク名</div>
       <div style="display: grid; grid-template-columns: repeat(${this.displayDates.length}, 1fr);">
         ${monthGroups.map(
           (group) => html`
@@ -513,7 +526,7 @@ export class GanttChartElement extends LitElement {
 
     return html`
       ${showAssignee ? html`<div class="cell row-detail-cell" style="grid-row: span ${assigneeRowSpan};">${task.assignee || ''}</div>` : null}
-      <div class="cell row-detail-cell">${task.name}</div>
+      <div class="cell row-detail-cell task-name-cell">${task.name}</div>
       <div style="display: grid; grid-template-columns: repeat(${this.displayDates.length}, 1fr);">
         ${taskCells}
       </div>
