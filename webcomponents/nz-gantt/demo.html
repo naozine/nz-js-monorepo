@@ -1686,8 +1686,9 @@
     function contextMenuEdit(event) {
       if (event) event.stopPropagation();
       if (contextMenuTaskId) {
+        const taskId = contextMenuTaskId;
         hideContextMenu();
-        openEditTaskDialog(contextMenuTaskId);
+        openEditTaskDialog(taskId);
       }
     }
 
