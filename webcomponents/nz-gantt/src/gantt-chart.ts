@@ -237,6 +237,14 @@ export class GanttChartElement extends LitElement {
       font-size: 0.85em;
     }
 
+    .weekday-saturday {
+      color: blue;
+    }
+
+    .weekday-sunday {
+      color: red;
+    }
+
     .weekend {
       background: #f9f9f9;
     }
@@ -432,8 +440,10 @@ export class GanttChartElement extends LitElement {
         ${this.displayDates.map(
           (date) => {
             const isNonWorking = this.scheduler && !this.scheduler.isWorkingDay(date);
+            const dayOfWeek = date.getDay();
+            const weekdayClass = dayOfWeek === 6 ? 'weekday-saturday' : dayOfWeek === 0 ? 'weekday-sunday' : '';
             return html`
-              <div class="cell col-header-cell col-header-weekday ${isNonWorking ? 'non-working-day' : ''}">
+              <div class="cell col-header-cell col-header-weekday ${isNonWorking ? 'non-working-day' : ''} ${weekdayClass}">
                 ${WEEKDAY_NAMES_JA[date.getDay()]}
               </div>
             `;
