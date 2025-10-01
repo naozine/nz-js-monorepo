@@ -497,7 +497,7 @@ export class GanttChartElement extends LitElement {
       if (dateStr >= taskStart && dateStr <= taskEnd) {
         if (task.duration === 0) {
           // Milestone
-          content = html`<div class="milestone"></div>`;
+          content = html`<div class="milestone" @contextmenu=${(e: MouseEvent) => this.handleTaskRightClick(e, task)}></div>`;
         } else if (dateStr === taskStart) {
           // Calculate span
           const startIdx = dateToIndex.get(taskStart)!;
