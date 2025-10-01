@@ -18,6 +18,139 @@
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #555;
+    }
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      margin-right: 10px;
+    }
+    .btn-primary {
+      background: #4a90e2;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #357abd;
+    }
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+    .btn-danger {
+      background: #e74c3c;
+      color: white;
+    }
+    .btn-danger:hover {
+      background: #c0392b;
+    }
+    .task-list {
+      list-style: none;
+      padding: 0;
+    }
+    .task-item {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f9f9f9;
+    }
+    .task-item-info {
+      flex: 1;
+    }
+    .task-item-actions button {
+      margin-left: 5px;
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+    .anchor-list,
+    .calendar-list {
+      list-style: none;
+      padding: 0;
+    }
+    .list-item {
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f9f9f9;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #333;
+      border-bottom: 2px solid #4a90e2;
+      padding-bottom: 5px;
+    }
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #ddd;
+      margin-bottom: 20px;
+    }
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-size: 14px;
+      font-weight: 500;
+      color: #666;
+    }
+    .tab.active {
+      color: #4a90e2;
+      border-bottom: 2px solid #4a90e2;
+      margin-bottom: -2px;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .chart-config {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f0f8ff;
+      border-radius: 4px;
     }
   </style>
   <script type="importmap">
@@ -37,48 +170,427 @@
   <h1>Gantt Chart Demo - プロジェクト管理</h1>
 
   <div class="container">
-    <gantt-chart first-day="2025-10-01" working-days="月,火,水,木,金" locale="ja-JP" timezone="Asia/Tokyo">
-      <!-- タスク定義 -->
-      <gantt-task id="A" name="要件定義" duration="3" assignee="佐藤"></gantt-task>
-      <gantt-task id="B" name="UI設計" duration="4" assignee="鈴木">
-        <depends-on task="A"></depends-on>
-      </gantt-task>
-      <gantt-task id="C" name="API設計" duration="5" assignee="田中">
-        <depends-on task="A"></depends-on>
-      </gantt-task>
-      <gantt-task id="D" name="実装" duration="8" assignee="山本">
-        <depends-on task="B"></depends-on>
-        <depends-on task="C"></depends-on>
-      </gantt-task>
-      <gantt-task id="M" name="リリース" duration="0" assignee="PM">
-        <depends-on task="D"></depends-on>
-      </gantt-task>
-
-      <!-- カレンダー（祝祭日等） -->
-      <gantt-calendar>
-        <gantt-holiday date="2025-10-13" label="スポーツの日"></gantt-holiday>
-        <gantt-closed from="2025-12-28" to="2026-01-05" label="年末年始"></gantt-closed>
-        <gantt-workday date="2025-10-12" label="特別稼働日"></gantt-workday>
-      </gantt-calendar>
-
-      <!-- アンカー：Aの1日目=2025-10-06、Dの5日目=2025-11-04（全体の基準） -->
-      <gantt-anchors>
-        <gantt-anchor task="A" day="1" date="2025-10-06"></gantt-anchor>
-        <gantt-anchor task="D" day="5" date="2025-11-04"></gantt-anchor>
-      </gantt-anchors>
-    </gantt-chart>
+    <div class="section-title">ガントチャート設定</div>
+    <div class="chart-config">
+      <div class="form-group">
+        <label>営業日:</label>
+        <input type="text" id="workingDays" value="月,火,水,木,金">
+      </div>
+      <div class="form-group">
+        <label>ロケール:</label>
+        <input type="text" id="locale" value="ja-JP">
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="updateChart()">チャートを更新</button>
   </div>
 
-  <div class="container" style="margin-top: 20px;">
-    <h2>説明</h2>
-    <ul>
-      <li><strong>アンカー方式:</strong> タスクAの1日目を2025-10-06に、タスクDの5日目を2025-11-04に固定</li>
-      <li><strong>営業日:</strong> 月〜金（土日を除く）</li>
-      <li><strong>祝日:</strong> 2025-10-13（スポーツの日）</li>
-      <li><strong>年末年始:</strong> 2025-12-28〜2026-01-05は非営業日</li>
-      <li><strong>特別稼働日:</strong> 2025-10-12（日曜日だが営業日として扱う）</li>
-      <li><strong>依存関係:</strong> B→A, C→A, D→B+C（AND条件）, M→D</li>
-    </ul>
+  <div class="container">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('tasks')">タスク</button>
+      <button class="tab" onclick="switchTab('anchors')">アンカー</button>
+      <button class="tab" onclick="switchTab('calendar')">カレンダー</button>
+    </div>
+
+    <div id="tasks-tab" class="tab-content active">
+      <div class="section-title">タスク管理</div>
+      <form id="taskForm" onsubmit="addTask(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>タスクID *</label>
+            <input type="text" id="taskId" required>
+          </div>
+          <div class="form-group">
+            <label>タスク名 *</label>
+            <input type="text" id="taskName" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>期間（日数） *</label>
+            <input type="number" id="taskDuration" min="0" required>
+          </div>
+          <div class="form-group">
+            <label>担当者</label>
+            <input type="text" id="taskAssignee">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>依存タスク（カンマ区切り）</label>
+          <input type="text" id="taskDependencies" placeholder="例: A,B">
+        </div>
+        <button type="submit" class="btn btn-primary">タスクを追加</button>
+        <button type="button" class="btn btn-secondary" onclick="resetTaskForm()">リセット</button>
+      </form>
+      <div style="margin-top: 20px;">
+        <h3>タスク一覧</h3>
+        <ul id="taskList" class="task-list"></ul>
+      </div>
+    </div>
+
+    <div id="anchors-tab" class="tab-content">
+      <div class="section-title">アンカー管理</div>
+      <form id="anchorForm" onsubmit="addAnchor(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>タスクID *</label>
+            <input type="text" id="anchorTaskId" required>
+          </div>
+          <div class="form-group">
+            <label>日目 *</label>
+            <input type="number" id="anchorDay" min="1" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>日付 (YYYY-MM-DD) *</label>
+          <input type="date" id="anchorDate" required>
+        </div>
+        <button type="submit" class="btn btn-primary">アンカーを追加</button>
+        <button type="button" class="btn btn-secondary" onclick="resetAnchorForm()">リセット</button>
+      </form>
+      <div style="margin-top: 20px;">
+        <h3>アンカー一覧</h3>
+        <ul id="anchorList" class="anchor-list"></ul>
+      </div>
+    </div>
+
+    <div id="calendar-tab" class="tab-content">
+      <div class="section-title">カレンダー管理</div>
+      <h3>祝日</h3>
+      <form id="holidayForm" onsubmit="addHoliday(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>日付 (YYYY-MM-DD) *</label>
+            <input type="date" id="holidayDate" required>
+          </div>
+          <div class="form-group">
+            <label>ラベル</label>
+            <input type="text" id="holidayLabel">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">祝日を追加</button>
+      </form>
+      <ul id="holidayList" class="calendar-list"></ul>
+
+      <h3 style="margin-top: 20px;">休業期間</h3>
+      <form id="closedForm" onsubmit="addClosed(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>開始日 (YYYY-MM-DD) *</label>
+            <input type="date" id="closedFrom" required>
+          </div>
+          <div class="form-group">
+            <label>終了日 (YYYY-MM-DD) *</label>
+            <input type="date" id="closedTo" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>ラベル</label>
+          <input type="text" id="closedLabel">
+        </div>
+        <button type="submit" class="btn btn-primary">休業期間を追加</button>
+      </form>
+      <ul id="closedList" class="calendar-list"></ul>
+
+      <h3 style="margin-top: 20px;">特別営業日</h3>
+      <form id="workdayForm" onsubmit="addWorkday(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>日付 (YYYY-MM-DD) *</label>
+            <input type="date" id="workdayDate" required>
+          </div>
+          <div class="form-group">
+            <label>ラベル</label>
+            <input type="text" id="workdayLabel">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">特別営業日を追加</button>
+      </form>
+      <ul id="workdayList" class="calendar-list"></ul>
+    </div>
   </div>
+
+  <div class="container">
+    <div id="ganttChartContainer"></div>
+  </div>
+
+  <script>
+    // データストア
+    let tasks = [
+      { id: 'A', name: '要件定義', duration: 3, assignee: '佐藤', dependencies: [] },
+      { id: 'B', name: 'UI設計', duration: 4, assignee: '鈴木', dependencies: ['A'] },
+      { id: 'C', name: 'API設計', duration: 5, assignee: '田中', dependencies: ['A'] },
+      { id: 'D', name: '実装', duration: 8, assignee: '山本', dependencies: ['B', 'C'] },
+      { id: 'M', name: 'リリース', duration: 0, assignee: 'PM', dependencies: ['D'] }
+    ];
+
+    let anchors = [
+      { task: 'A', day: 1, date: '2025-10-06' },
+      { task: 'D', day: 5, date: '2025-11-04' }
+    ];
+
+    let holidays = [
+      { date: '2025-10-13', label: 'スポーツの日' }
+    ];
+
+    let closedPeriods = [
+      { from: '2025-12-28', to: '2026-01-05', label: '年末年始' }
+    ];
+
+    let workdays = [
+      { date: '2025-10-12', label: '特別稼働日' }
+    ];
+
+    let editingTaskId = null;
+
+    // タブ切り替え
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      event.target.classList.add('active');
+      document.getElementById(tabName + '-tab').classList.add('active');
+    }
+
+    // タスク追加/編集
+    function addTask(event) {
+      event.preventDefault();
+
+      const id = document.getElementById('taskId').value.trim();
+      const name = document.getElementById('taskName').value.trim();
+      const duration = parseInt(document.getElementById('taskDuration').value);
+      const assignee = document.getElementById('taskAssignee').value.trim();
+      const deps = document.getElementById('taskDependencies').value
+        .split(',')
+        .map(d => d.trim())
+        .filter(d => d);
+
+      if (editingTaskId) {
+        const index = tasks.findIndex(t => t.id === editingTaskId);
+        if (index !== -1) {
+          tasks[index] = { id, name, duration, assignee, dependencies: deps };
+        }
+        editingTaskId = null;
+      } else {
+        if (tasks.find(t => t.id === id)) {
+          alert('同じIDのタスクが既に存在します');
+          return;
+        }
+        tasks.push({ id, name, duration, assignee, dependencies: deps });
+      }
+
+      resetTaskForm();
+      renderTaskList();
+      updateChart();
+    }
+
+    function editTask(id) {
+      const task = tasks.find(t => t.id === id);
+      if (!task) return;
+
+      document.getElementById('taskId').value = task.id;
+      document.getElementById('taskName').value = task.name;
+      document.getElementById('taskDuration').value = task.duration;
+      document.getElementById('taskAssignee').value = task.assignee || '';
+      document.getElementById('taskDependencies').value = task.dependencies.join(', ');
+
+      editingTaskId = id;
+      document.querySelector('#taskForm button[type="submit"]').textContent = 'タスクを更新';
+    }
+
+    function deleteTask(id) {
+      if (!confirm(`タスク ${id} を削除しますか？`)) return;
+
+      tasks = tasks.filter(t => t.id !== id);
+      anchors = anchors.filter(a => a.task !== id);
+
+      renderTaskList();
+      renderAnchorList();
+      updateChart();
+    }
+
+    function resetTaskForm() {
+      document.getElementById('taskForm').reset();
+      editingTaskId = null;
+      document.querySelector('#taskForm button[type="submit"]').textContent = 'タスクを追加';
+    }
+
+    function renderTaskList() {
+      const list = document.getElementById('taskList');
+      list.innerHTML = tasks.map(task => `
+        <li class="task-item">
+          <div class="task-item-info">
+            <strong>${task.id}</strong>: ${task.name}
+            (期間: ${task.duration}日, 担当: ${task.assignee || 'なし'})
+            ${task.dependencies.length > 0 ? `<br>依存: ${task.dependencies.join(', ')}` : ''}
+          </div>
+          <div class="task-item-actions">
+            <button class="btn btn-secondary" onclick="editTask('${task.id}')">編集</button>
+            <button class="btn btn-danger" onclick="deleteTask('${task.id}')">削除</button>
+          </div>
+        </li>
+      `).join('');
+    }
+
+    // アンカー管理
+    function addAnchor(event) {
+      event.preventDefault();
+
+      const task = document.getElementById('anchorTaskId').value.trim();
+      const day = parseInt(document.getElementById('anchorDay').value);
+      const date = document.getElementById('anchorDate').value;
+
+      if (!tasks.find(t => t.id === task)) {
+        alert('指定されたタスクIDが存在しません');
+        return;
+      }
+
+      anchors.push({ task, day, date });
+      resetAnchorForm();
+      renderAnchorList();
+      updateChart();
+    }
+
+    function deleteAnchor(index) {
+      anchors.splice(index, 1);
+      renderAnchorList();
+      updateChart();
+    }
+
+    function resetAnchorForm() {
+      document.getElementById('anchorForm').reset();
+    }
+
+    function renderAnchorList() {
+      const list = document.getElementById('anchorList');
+      list.innerHTML = anchors.map((anchor, index) => `
+        <li class="list-item">
+          <span>タスク: ${anchor.task}, ${anchor.day}日目 = ${anchor.date}</span>
+          <button class="btn btn-danger" onclick="deleteAnchor(${index})">削除</button>
+        </li>
+      `).join('');
+    }
+
+    // カレンダー管理
+    function addHoliday(event) {
+      event.preventDefault();
+
+      const date = document.getElementById('holidayDate').value;
+      const label = document.getElementById('holidayLabel').value.trim();
+
+      holidays.push({ date, label });
+      document.getElementById('holidayForm').reset();
+      renderHolidayList();
+      updateChart();
+    }
+
+    function deleteHoliday(index) {
+      holidays.splice(index, 1);
+      renderHolidayList();
+      updateChart();
+    }
+
+    function renderHolidayList() {
+      const list = document.getElementById('holidayList');
+      list.innerHTML = holidays.map((holiday, index) => `
+        <li class="list-item">
+          <span>${holiday.date} - ${holiday.label || '(ラベルなし)'}</span>
+          <button class="btn btn-danger" onclick="deleteHoliday(${index})">削除</button>
+        </li>
+      `).join('');
+    }
+
+    function addClosed(event) {
+      event.preventDefault();
+
+      const from = document.getElementById('closedFrom').value;
+      const to = document.getElementById('closedTo').value;
+      const label = document.getElementById('closedLabel').value.trim();
+
+      closedPeriods.push({ from, to, label });
+      document.getElementById('closedForm').reset();
+      renderClosedList();
+      updateChart();
+    }
+
+    function deleteClosed(index) {
+      closedPeriods.splice(index, 1);
+      renderClosedList();
+      updateChart();
+    }
+
+    function renderClosedList() {
+      const list = document.getElementById('closedList');
+      list.innerHTML = closedPeriods.map((period, index) => `
+        <li class="list-item">
+          <span>${period.from} 〜 ${period.to} - ${period.label || '(ラベルなし)'}</span>
+          <button class="btn btn-danger" onclick="deleteClosed(${index})">削除</button>
+        </li>
+      `).join('');
+    }
+
+    function addWorkday(event) {
+      event.preventDefault();
+
+      const date = document.getElementById('workdayDate').value;
+      const label = document.getElementById('workdayLabel').value.trim();
+
+      workdays.push({ date, label });
+      document.getElementById('workdayForm').reset();
+      renderWorkdayList();
+      updateChart();
+    }
+
+    function deleteWorkday(index) {
+      workdays.splice(index, 1);
+      renderWorkdayList();
+      updateChart();
+    }
+
+    function renderWorkdayList() {
+      const list = document.getElementById('workdayList');
+      list.innerHTML = workdays.map((workday, index) => `
+        <li class="list-item">
+          <span>${workday.date} - ${workday.label || '(ラベルなし)'}</span>
+          <button class="btn btn-danger" onclick="deleteWorkday(${index})">削除</button>
+        </li>
+      `).join('');
+    }
+
+    // チャート更新
+    function updateChart() {
+      const workingDays = document.getElementById('workingDays').value;
+      const locale = document.getElementById('locale').value;
+
+      let html = `
+        <gantt-chart working-days="${workingDays}" locale="${locale}" timezone="Asia/Tokyo">
+          ${tasks.map(task => `
+            <gantt-task id="${task.id}" name="${task.name}" duration="${task.duration}" assignee="${task.assignee || ''}">
+              ${task.dependencies.map(dep => `<depends-on task="${dep}"></depends-on>`).join('\n              ')}
+            </gantt-task>
+          `).join('\n          ')}
+
+          <gantt-calendar>
+            ${holidays.map(h => `<gantt-holiday date="${h.date}" label="${h.label || ''}"></gantt-holiday>`).join('\n            ')}
+            ${closedPeriods.map(c => `<gantt-closed from="${c.from}" to="${c.to}" label="${c.label || ''}"></gantt-closed>`).join('\n            ')}
+            ${workdays.map(w => `<gantt-workday date="${w.date}" label="${w.label || ''}"></gantt-workday>`).join('\n            ')}
+          </gantt-calendar>
+
+          <gantt-anchors>
+            ${anchors.map(a => `<gantt-anchor task="${a.task}" day="${a.day}" date="${a.date}"></gantt-anchor>`).join('\n            ')}
+          </gantt-anchors>
+        </gantt-chart>
+      `;
+
+      document.getElementById('ganttChartContainer').innerHTML = html;
+    }
+
+    // 初期化
+    renderTaskList();
+    renderAnchorList();
+    renderHolidayList();
+    renderClosedList();
+    renderWorkdayList();
+    updateChart();
+  </script>
 </body>
 </html>
