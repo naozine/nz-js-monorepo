@@ -405,7 +405,7 @@ export class GanttChartElement extends LitElement {
         ${this.displayDates.map(
           (date) => html`
             <div class="cell col-header-cell">
-              ${date.getDate()}
+              ${String(date.getDate()).padStart(2, '0')}
             </div>
           `
         )}
