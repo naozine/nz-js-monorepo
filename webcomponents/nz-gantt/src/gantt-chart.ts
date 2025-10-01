@@ -208,7 +208,15 @@ export class GanttChartElement extends LitElement {
 
     .row-header-cell {
       background: #f5f5f5;
-      font-weight: 500;
+      font-weight: 600;
+      justify-content: flex-start;
+      padding: 4px 12px;
+      white-space: nowrap;
+    }
+
+    .row-detail-cell {
+      background: #f5f5f5;
+      font-weight: normal;
       justify-content: flex-start;
       padding: 4px 12px;
       white-space: nowrap;
@@ -390,8 +398,8 @@ export class GanttChartElement extends LitElement {
 
     return html`
       <!-- Month row -->
-      <div class="cell row-header-cell"></div>
-      <div class="cell row-header-cell"></div>
+      <div class="cell row-header-cell" style="grid-row: span 3;">担当者</div>
+      <div class="cell row-header-cell" style="grid-row: span 3;">タスク名</div>
       <div style="display: grid; grid-template-columns: repeat(${this.displayDates.length}, 1fr);">
         ${monthGroups.map(
           (group) => html`
@@ -406,8 +414,6 @@ export class GanttChartElement extends LitElement {
       </div>
 
       <!-- Day row -->
-      <div class="cell row-header-cell">担当者</div>
-      <div class="cell row-header-cell">タスク名</div>
       <div style="display: grid; grid-template-columns: repeat(${this.displayDates.length}, 1fr);">
         ${this.displayDates.map(
           (date) => {
@@ -422,8 +428,6 @@ export class GanttChartElement extends LitElement {
       </div>
 
       <!-- Weekday row -->
-      <div class="cell row-header-cell"></div>
-      <div class="cell row-header-cell"></div>
       <div style="display: grid; grid-template-columns: repeat(${this.displayDates.length}, 1fr);">
         ${this.displayDates.map(
           (date) => {
@@ -481,8 +485,8 @@ export class GanttChartElement extends LitElement {
     });
 
     return html`
-      <div class="cell row-header-cell">${task.assignee || ''}</div>
-      <div class="cell row-header-cell">${task.name}</div>
+      <div class="cell row-detail-cell">${task.assignee || ''}</div>
+      <div class="cell row-detail-cell">${task.name}</div>
       <div style="display: grid; grid-template-columns: repeat(${this.displayDates.length}, 1fr);">
         ${taskCells}
       </div>
