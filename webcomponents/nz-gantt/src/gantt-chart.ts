@@ -392,7 +392,7 @@ export class GanttChartElement extends LitElement {
               class="cell col-header-cell col-header-month"
               style="grid-column: span ${group.span};"
             >
-              ${group.label}
+              ${group.span >= 4 ? group.label : ''}
             </div>
           `
         )}
