@@ -453,7 +453,7 @@ export class GanttChartElement extends LitElement {
     `;
   }
 
-  private renderTaskRow(task: ScheduledTask) {
+  private renderTaskRow(task: ScheduledTask, assigneeRowSpan: number, showAssignee: boolean) {
     const dateToIndex = new Map<string, number>();
     this.displayDates.forEach((date, idx) => {
       dateToIndex.set(this.formatDate(date), idx);
@@ -495,7 +495,7 @@ export class GanttChartElement extends LitElement {
     });
 
     return html`
-      <div class="cell row-detail-cell">${task.assignee || ''}</div>
+      ${showAssignee ? html`<div class="cell row-detail-cell" style="grid-row: span ${assigneeRowSpan};">${task.assignee || ''}</div>` : null}
       <div class="cell row-detail-cell">${task.name}</div>
       <div style="display: grid; grid-template-columns: repeat(${this.displayDates.length}, 1fr);">
         ${taskCells}
@@ -516,11 +516,36 @@ export class GanttChartElement extends LitElement {
       return html`<div style="padding: 16px;">No tasks to display</div>`;
     }
 
+    // Calculate assignee row spans
+    const taskRowData: Array<{ task: ScheduledTask; assigneeRowSpan: number; showAssignee: boolean }> = [];
+
+    for (let i = 0; i < this.scheduledTasks.length; i++) {
+      const task = this.scheduledTasks[i];
+      const assignee = task.assignee || '';
+
+      // Check if this is the start of a new assignee group
+      if (i === 0 || (this.scheduledTasks[i - 1].assignee || '') !== assignee) {
+        // Count consecutive rows with same assignee
+        let span = 1;
+        for (let j = i + 1; j < this.scheduledTasks.length; j++) {
+          if ((this.scheduledTasks[j].assignee || '') === assignee) {
+            span++;
+          } else {
+            break;
+          }
+        }
+        taskRowData.push({ task, assigneeRowSpan: span, showAssignee: true });
+      } else {
+        // This row is part of the previous assignee group
+        taskRowData.push({ task, assigneeRowSpan: 1, showAssignee: false });
+      }
+    }
+
     return html`
       <div class="gantt-container">
         <div class="gantt-grid">
           ${this.renderColumnHeaders()}
-          ${this.scheduledTasks.map((task) => this.renderTaskRow(task))}
+          ${taskRowData.map((data) => this.renderTaskRow(data.task, data.assigneeRowSpan, data.showAssignee))}
         </div>
       </div>
       <slot></slot>

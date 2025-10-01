@@ -336,14 +336,18 @@
     let tasks = [
       { id: 'A', name: '要件定義', duration: 3, assignee: '佐藤', dependencies: [] },
       { id: 'B', name: 'UI設計', duration: 4, assignee: '鈴木', dependencies: ['A'] },
-      { id: 'C', name: 'API設計', duration: 5, assignee: '田中', dependencies: ['A'] },
-      { id: 'D', name: '実装', duration: 8, assignee: '山本', dependencies: ['B', 'C'] },
-      { id: 'M', name: 'リリース', duration: 0, assignee: 'PM', dependencies: ['D'] }
+      { id: 'C', name: 'UIコンポーネント設計', duration: 3, assignee: '鈴木', dependencies: ['B'] },
+      { id: 'D', name: 'API設計', duration: 5, assignee: '田中', dependencies: ['A'] },
+      { id: 'E', name: 'データベース設計', duration: 4, assignee: '田中', dependencies: ['D'] },
+      { id: 'F', name: 'フロントエンド実装', duration: 6, assignee: '山本', dependencies: ['C'] },
+      { id: 'G', name: 'バックエンド実装', duration: 8, assignee: '山本', dependencies: ['E'] },
+      { id: 'H', name: '統合テスト', duration: 5, assignee: '山本', dependencies: ['F', 'G'] },
+      { id: 'M', name: 'リリース', duration: 0, assignee: 'PM', dependencies: ['H'] }
     ];
 
     let anchors = [
       { task: 'A', day: 1, date: '2025-10-06' },
-      { task: 'D', day: 5, date: '2025-11-04' }
+      { task: 'H', day: 3, date: '2025-11-20' }
     ];
 
     let holidays = [
