@@ -1,0 +1,1839 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gantt Chart Demo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #555;
+    }
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      margin-right: 10px;
+    }
+    .btn-primary {
+      background: #4a90e2;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #357abd;
+    }
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+    .btn-danger {
+      background: #e74c3c;
+      color: white;
+    }
+    .btn-danger:hover {
+      background: #c0392b;
+    }
+    .btn-success {
+      background: #27ae60;
+      color: white;
+    }
+    .btn-success:hover {
+      background: #229954;
+    }
+    .task-list {
+      list-style: none;
+      padding: 0;
+    }
+    .task-item {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f9f9f9;
+    }
+    .task-item-info {
+      flex: 1;
+    }
+    .task-item-actions button {
+      margin-left: 5px;
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+    .anchor-list,
+    .calendar-list {
+      list-style: none;
+      padding: 0;
+    }
+    .list-item {
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f9f9f9;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #333;
+      border-bottom: 2px solid #4a90e2;
+      padding-bottom: 5px;
+    }
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #ddd;
+      margin-bottom: 20px;
+    }
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-size: 14px;
+      font-weight: 500;
+      color: #666;
+    }
+    .tab.active {
+      color: #4a90e2;
+      border-bottom: 2px solid #4a90e2;
+      margin-bottom: -2px;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .chart-config {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f0f8ff;
+      border-radius: 4px;
+    }
+
+    /* Color Preset Dialog Styles */
+    .color-dialog-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .color-dialog-overlay.active {
+      display: flex;
+    }
+
+    .color-dialog {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .color-dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #4a90e2;
+      padding-bottom: 10px;
+    }
+
+    .color-dialog-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .color-dialog-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .color-dialog-close:hover {
+      color: #333;
+    }
+
+    .color-preset-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .color-preset-item {
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .color-preset-item:hover {
+      border-color: #4a90e2;
+      box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+    }
+
+    .color-preset-item.selected {
+      border-color: #4a90e2;
+      background: #f0f8ff;
+    }
+
+    .color-preset-label {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .color-preset-preview {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 4px;
+      position: relative;
+    }
+
+    .color-preview-bar {
+      flex: 1;
+      height: 24px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .preset-select-button {
+      margin-top: 8px;
+      width: 100%;
+      padding: 6px;
+      background: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .preset-select-button:hover {
+      background: #357abd;
+    }
+
+    /* New Layout Styles */
+    .header {
+      background: white;
+      padding: 20px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .header h1 {
+      margin: 0 0 20px 0;
+      color: #333;
+      font-size: 24px;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .header-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      background: #f8f9fa;
+      color: #495057;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .header-btn:hover {
+      background: #4a90e2;
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
+    }
+
+    .btn-icon {
+      font-size: 16px;
+    }
+
+    .status-bar {
+      background: #e9ecef;
+      padding: 10px 20px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #6c757d;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .separator {
+      color: #adb5bd;
+    }
+
+    .main-chart-container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    /* Dialog Styles */
+    .dialog-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dialog-overlay.active {
+      display: flex;
+    }
+
+    .dialog {
+      background: white;
+      border-radius: 8px;
+      max-width: 800px;
+      max-height: 90vh;
+      width: 90%;
+      overflow-y: auto;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid #dee2e6;
+      background: #f8f9fa;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .dialog-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dialog-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+
+    .dialog-close:hover {
+      background: #e9ecef;
+      color: #333;
+    }
+
+    .dialog-content {
+      padding: 20px;
+    }
+
+    .dialog-tabs {
+      display: flex;
+      border-bottom: 2px solid #dee2e6;
+      margin-bottom: 20px;
+    }
+
+    .dialog-tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-size: 14px;
+      font-weight: 500;
+      color: #666;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .dialog-tab.active {
+      color: #4a90e2;
+      border-bottom-color: #4a90e2;
+    }
+
+    .dialog-tab-content {
+      display: none;
+    }
+
+    .dialog-tab-content.active {
+      display: block;
+    }
+
+    /* Context Menu Styles */
+    .context-menu {
+      display: none;
+      position: fixed;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      z-index: 2000;
+      min-width: 150px;
+    }
+
+    .context-menu.active {
+      display: block;
+    }
+
+    .context-menu-item {
+      padding: 10px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #333;
+      border-bottom: 1px solid #eee;
+    }
+
+    .context-menu-item:last-child {
+      border-bottom: none;
+    }
+
+    .context-menu-item:hover {
+      background: #f5f5f5;
+    }
+
+    .context-menu-item.danger:hover {
+      background: #fee;
+      color: #e74c3c;
+    }
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "lit": "https://esm.sh/lit@3.1.0",
+        "lit/": "https://esm.sh/lit@3.1.0/",
+        "@lit/reactive-element": "https://esm.sh/@lit/reactive-element@2.0.4",
+        "lit-html": "https://esm.sh/lit-html@3.1.0",
+        "lit-element/lit-element.js": "https://esm.sh/lit-element@4.0.4/lit-element.js"
+      }
+    }
+  </script>
+  <script type="module" src="./dist/index.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+  <!-- ヘッダー -->
+  <div class="header">
+    <h1>Gantt Chart Demo - プロジェクト管理</h1>
+    <div class="header-buttons">
+      <button class="header-btn" onclick="openDialog('chart-settings')">
+        <span class="btn-icon">📊</span>
+        <span class="btn-text">チャート設定</span>
+      </button>
+      <button class="header-btn" onclick="openDialog('task-management')">
+        <span class="btn-icon">📝</span>
+        <span class="btn-text">タスク管理</span>
+      </button>
+      <button class="header-btn" onclick="openDialog('anchor-management')">
+        <span class="btn-icon">⚓</span>
+        <span class="btn-text">アンカー</span>
+      </button>
+      <button class="header-btn" onclick="openDialog('calendar-management')">
+        <span class="btn-icon">📅</span>
+        <span class="btn-text">カレンダー</span>
+      </button>
+      <button class="header-btn" onclick="openDialog('color-settings')">
+        <span class="btn-icon">🎨</span>
+        <span class="btn-text">色設定</span>
+      </button>
+      <button class="header-btn" onclick="openDialog('export-settings')">
+        <span class="btn-icon">📥</span>
+        <span class="btn-text">エクスポート</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ステータスバー -->
+  <div class="status-bar">
+    <span id="taskCount">タスク数: 9</span>
+    <span class="separator">|</span>
+    <span id="anchorCount">アンカー: 2</span>
+    <span class="separator">|</span>
+    <span id="workingDaysInfo">営業日: 月-金</span>
+    <span class="separator">|</span>
+    <span id="lastUpdate">最終更新: --</span>
+  </div>
+
+  <!-- メインガントチャート -->
+  <div class="main-chart-container">
+    <div id="ganttChartContainer"></div>
+  </div>
+
+  <!-- チャート設定ダイアログ -->
+  <div id="chart-settings-dialog" class="dialog-overlay" onclick="closeDialogOnOverlay(event, 'chart-settings')">
+    <div class="dialog" onclick="event.stopPropagation()">
+      <div class="dialog-header">
+        <div class="dialog-title">
+          <span>📊</span>
+          チャート設定
+        </div>
+        <button class="dialog-close" onclick="closeDialog('chart-settings')">&times;</button>
+      </div>
+      <div class="dialog-content">
+        <div class="form-row">
+          <div class="form-group">
+            <label>営業日:</label>
+            <input type="text" id="workingDays" value="月,火,水,木,金">
+          </div>
+          <div class="form-group">
+            <label>ロケール:</label>
+            <input type="text" id="locale" value="ja-JP">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="showNonWorkingDays" checked onchange="updateChart()">
+            非営業日も表示
+          </label>
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="hideTaskNameColumn" checked onchange="updateChart()">
+            タスク名列を非表示
+          </label>
+        </div>
+        <div style="margin-top: 20px;">
+          <button class="btn btn-primary" onclick="updateChart(); updateStatusBar();">設定を適用</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- タスク管理ダイアログ -->
+  <div id="task-management-dialog" class="dialog-overlay" onclick="closeDialogOnOverlay(event, 'task-management')">
+    <div class="dialog" onclick="event.stopPropagation()">
+      <div class="dialog-header">
+        <div class="dialog-title">
+          <span>📝</span>
+          タスク管理
+        </div>
+        <button class="dialog-close" onclick="closeDialog('task-management')">&times;</button>
+      </div>
+      <div class="dialog-content">
+
+        <div class="section-title">新規タスク追加</div>
+        <form id="taskForm" onsubmit="addTask(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>タスクID *</label>
+            <input type="text" id="taskId" required>
+          </div>
+          <div class="form-group">
+            <label>タスク名 *</label>
+            <input type="text" id="taskName" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>期間（日数） *</label>
+            <input type="number" id="taskDuration" min="0" required>
+          </div>
+          <div class="form-group">
+            <label>担当者</label>
+            <input type="text" id="taskAssignee">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>依存タスク（カンマ区切り）</label>
+          <input type="text" id="taskDependencies" placeholder="例: A,B">
+        </div>
+        <div class="form-group">
+          <label>色の選択方法</label>
+          <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+              <input type="radio" name="colorMode" value="preset" checked onchange="toggleColorMode()">
+              プリセット
+            </label>
+            <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+              <input type="radio" name="colorMode" value="custom" onchange="toggleColorMode()">
+              カスタム
+            </label>
+          </div>
+        </div>
+        <div id="presetColorSection" class="form-group">
+          <label>カラープリセット</label>
+          <button type="button" class="btn btn-secondary" onclick="openColorDialog('task')" style="width: 100%;">
+            <span id="selectedTaskPresetLabel">プリセットを選択</span>
+          </button>
+          <input type="hidden" id="colorPreset">
+        </div>
+        <div id="customColorSection" class="form-row" style="display: none;">
+          <div class="form-group">
+            <label>棒グラフの色</label>
+            <input type="color" id="taskBarColor">
+          </div>
+          <div class="form-group">
+            <label>タスク名の色</label>
+            <input type="color" id="taskTextColor" value="#ffffff">
+          </div>
+        </div>
+          <button type="submit" class="btn btn-primary">タスクを追加</button>
+          <button type="button" class="btn btn-secondary" onclick="resetTaskForm()">リセット</button>
+        </form>
+
+        <div style="margin-top: 30px;">
+          <div class="section-title">タスク一覧</div>
+          <ul id="taskList" class="task-list"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- アンカー管理ダイアログ -->
+  <div id="anchor-management-dialog" class="dialog-overlay" onclick="closeDialogOnOverlay(event, 'anchor-management')">
+    <div class="dialog" onclick="event.stopPropagation()">
+      <div class="dialog-header">
+        <div class="dialog-title">
+          <span>⚓</span>
+          アンカー管理
+        </div>
+        <button class="dialog-close" onclick="closeDialog('anchor-management')">&times;</button>
+      </div>
+      <div class="dialog-content">
+        <div class="section-title">新規アンカー追加</div>
+        <form id="anchorForm" onsubmit="addAnchor(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>タスクID *</label>
+              <input type="text" id="anchorTaskId" required>
+            </div>
+            <div class="form-group">
+              <label>日目 *</label>
+              <input type="number" id="anchorDay" min="1" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>日付 (YYYY-MM-DD) *</label>
+            <input type="date" id="anchorDate" required>
+          </div>
+          <button type="submit" class="btn btn-primary">アンカーを追加</button>
+          <button type="button" class="btn btn-secondary" onclick="resetAnchorForm()">リセット</button>
+        </form>
+
+        <div style="margin-top: 30px;">
+          <div class="section-title">アンカー一覧</div>
+          <ul id="anchorList" class="anchor-list"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- カレンダー管理ダイアログ -->
+  <div id="calendar-management-dialog" class="dialog-overlay" onclick="closeDialogOnOverlay(event, 'calendar-management')">
+    <div class="dialog" onclick="event.stopPropagation()">
+      <div class="dialog-header">
+        <div class="dialog-title">
+          <span>📅</span>
+          カレンダー管理
+        </div>
+        <button class="dialog-close" onclick="closeDialog('calendar-management')">&times;</button>
+      </div>
+      <div class="dialog-content">
+        <div class="dialog-tabs">
+          <button class="dialog-tab active" onclick="switchDialogTab('holidays')">祝日</button>
+          <button class="dialog-tab" onclick="switchDialogTab('closed')">休業期間</button>
+          <button class="dialog-tab" onclick="switchDialogTab('workdays')">特別営業日</button>
+        </div>
+
+        <!-- 祝日タブ -->
+        <div id="holidays-tab" class="dialog-tab-content active">
+          <form id="holidayForm" onsubmit="addHoliday(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label>日付 (YYYY-MM-DD) *</label>
+                <input type="date" id="holidayDate" required>
+              </div>
+              <div class="form-group">
+                <label>ラベル</label>
+                <input type="text" id="holidayLabel">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">祝日を追加</button>
+          </form>
+          <ul id="holidayList" class="calendar-list" style="margin-top: 20px;"></ul>
+        </div>
+
+        <!-- 休業期間タブ -->
+        <div id="closed-tab" class="dialog-tab-content">
+          <form id="closedForm" onsubmit="addClosed(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label>開始日 (YYYY-MM-DD) *</label>
+                <input type="date" id="closedFrom" required>
+              </div>
+              <div class="form-group">
+                <label>終了日 (YYYY-MM-DD) *</label>
+                <input type="date" id="closedTo" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>ラベル</label>
+              <input type="text" id="closedLabel">
+            </div>
+            <button type="submit" class="btn btn-primary">休業期間を追加</button>
+          </form>
+          <ul id="closedList" class="calendar-list" style="margin-top: 20px;"></ul>
+        </div>
+
+        <!-- 特別営業日タブ -->
+        <div id="workdays-tab" class="dialog-tab-content">
+          <form id="workdayForm" onsubmit="addWorkday(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label>日付 (YYYY-MM-DD) *</label>
+                <input type="date" id="workdayDate" required>
+              </div>
+              <div class="form-group">
+                <label>ラベル</label>
+                <input type="text" id="workdayLabel">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">特別営業日を追加</button>
+          </form>
+          <ul id="workdayList" class="calendar-list" style="margin-top: 20px;"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 色設定ダイアログ -->
+  <div id="color-settings-dialog" class="dialog-overlay" onclick="closeDialogOnOverlay(event, 'color-settings')">
+    <div class="dialog" onclick="event.stopPropagation()">
+      <div class="dialog-header">
+        <div class="dialog-title">
+          <span>🎨</span>
+          色設定
+        </div>
+        <button class="dialog-close" onclick="closeDialog('color-settings')">&times;</button>
+      </div>
+      <div class="dialog-content">
+        <div class="section-title">タスクの色を一括変更</div>
+        <div class="form-group">
+          <label>色の選択方法</label>
+          <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+              <input type="radio" name="bulkColorMode" value="preset" checked onchange="toggleBulkColorMode()">
+              プリセット
+            </label>
+            <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+              <input type="radio" name="bulkColorMode" value="custom" onchange="toggleBulkColorMode()">
+              カスタム
+            </label>
+          </div>
+        </div>
+        <div id="bulkPresetColorSection" class="form-group">
+          <label>カラープリセット</label>
+          <button type="button" class="btn btn-secondary" onclick="openColorDialog('bulk')" style="width: 100%;">
+            <span id="selectedBulkPresetLabel">プリセットを選択</span>
+          </button>
+          <input type="hidden" id="bulkColorPreset">
+        </div>
+        <div id="bulkCustomColorSection" class="form-row" style="display: none;">
+          <div class="form-group">
+            <label>棒グラフの色</label>
+            <input type="color" id="bulkBarColor" value="#4a90e2">
+          </div>
+          <div class="form-group">
+            <label>タスク名の色</label>
+            <input type="color" id="bulkTextColor" value="#ffffff">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="applyBulkColors()">すべてのタスクに適用</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- エクスポートダイアログ -->
+  <div id="export-settings-dialog" class="dialog-overlay" onclick="closeDialogOnOverlay(event, 'export-settings')">
+    <div class="dialog" onclick="event.stopPropagation()">
+      <div class="dialog-header">
+        <div class="dialog-title">
+          <span>📥</span>
+          エクスポート
+        </div>
+        <button class="dialog-close" onclick="closeDialog('export-settings')">&times;</button>
+      </div>
+      <div class="dialog-content">
+        <div class="section-title">ファイル形式</div>
+        <div class="form-group">
+          <label>
+            <input type="radio" name="exportFormat" value="png" checked>
+            PNG (ビットマップ画像)
+          </label>
+        </div>
+        <div class="section-title" style="margin-top: 30px;">オプション</div>
+        <div class="form-group">
+          <label>版質:</label>
+          <select id="exportQuality">
+            <option value="1">標準 (1x)</option>
+            <option value="2" selected>高画質 (2x)</option>
+            <option value="3">最高画質 (3x)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="transparentBackground">
+            透明背景
+          </label>
+        </div>
+        <div style="margin-top: 20px;">
+          <button class="btn btn-success" onclick="downloadChartAsPNG()">📥 ダウンロード</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Color Preset Dialog -->
+  <div id="colorDialogOverlay" class="color-dialog-overlay" onclick="closeColorDialogOnOverlay(event)">
+    <div class="color-dialog" onclick="event.stopPropagation()">
+      <div class="color-dialog-header">
+        <div class="color-dialog-title">カラープリセットを選択</div>
+        <button class="color-dialog-close" onclick="closeColorDialog()">&times;</button>
+      </div>
+      <div id="colorPresetGrid" class="color-preset-grid">
+        <!-- Preset items will be dynamically generated -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Context Menu for Task Right-Click -->
+  <div id="taskContextMenu" class="context-menu">
+    <div class="context-menu-item" onclick="contextMenuEdit(event)">
+      <span>✏️</span>
+      <span>編集</span>
+    </div>
+    <div class="context-menu-item danger" onclick="contextMenuDelete(event)">
+      <span>🗑️</span>
+      <span>削除</span>
+    </div>
+  </div>
+
+  <!-- Single Task Edit Dialog -->
+  <div id="task-edit-dialog" class="dialog-overlay" onclick="closeDialogOnOverlay(event, 'task-edit')">
+    <div class="dialog" onclick="event.stopPropagation()">
+      <div class="dialog-header">
+        <div class="dialog-title">
+          <span>✏️</span>
+          タスク編集
+        </div>
+        <button class="dialog-close" onclick="closeDialog('task-edit')">&times;</button>
+      </div>
+      <div class="dialog-content">
+        <form id="taskEditForm" onsubmit="updateSingleTask(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>タスクID *</label>
+              <input type="text" id="editTaskId" readonly style="background: #f0f0f0;">
+            </div>
+            <div class="form-group">
+              <label>タスク名 *</label>
+              <input type="text" id="editTaskName" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>期間（日数） *</label>
+              <input type="number" id="editTaskDuration" min="0" required>
+            </div>
+            <div class="form-group">
+              <label>担当者</label>
+              <input type="text" id="editTaskAssignee">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>依存タスク（カンマ区切り）</label>
+            <input type="text" id="editTaskDependencies" placeholder="例: A,B">
+          </div>
+          <div class="form-group">
+            <label>色の選択方法</label>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+              <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+                <input type="radio" name="editColorMode" value="preset" checked onchange="toggleEditColorMode()">
+                プリセット
+              </label>
+              <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+                <input type="radio" name="editColorMode" value="custom" onchange="toggleEditColorMode()">
+                カスタム
+              </label>
+            </div>
+          </div>
+          <div id="editPresetColorSection" class="form-group">
+            <label>カラープリセット</label>
+            <button type="button" class="btn btn-secondary" onclick="openColorDialog('edit')" style="width: 100%;">
+              <span id="selectedEditPresetLabel">プリセットを選択</span>
+            </button>
+            <input type="hidden" id="editColorPreset">
+          </div>
+          <div id="editCustomColorSection" class="form-row" style="display: none;">
+            <div class="form-group">
+              <label>棒グラフの色</label>
+              <input type="color" id="editTaskBarColor">
+            </div>
+            <div class="form-group">
+              <label>タスク名の色</label>
+              <input type="color" id="editTaskTextColor" value="#ffffff">
+            </div>
+          </div>
+          <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-primary">更新</button>
+            <button type="button" class="btn btn-secondary" onclick="closeDialog('task-edit')">キャンセル</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // データストア
+    let tasks = [
+      { id: 'A', name: '要件定義', duration: 3, assignee: '佐藤', dependencies: [], barColor: '#87ceeb', textColor: '#003366' },
+      { id: 'B', name: 'UI設計', duration: 4, assignee: '鈴木', dependencies: ['A'], barColor: '#87ceeb', textColor: '#003366' },
+      { id: 'C', name: 'UIコンポーネント設計', duration: 3, assignee: '鈴木', dependencies: ['B'], barColor: '#87ceeb', textColor: '#003366' },
+      { id: 'D', name: 'API設計', duration: 5, assignee: '田中', dependencies: ['A'], barColor: '#87ceeb', textColor: '#003366' },
+      { id: 'E', name: 'データベース設計', duration: 4, assignee: '田中', dependencies: ['D'], barColor: '#87ceeb', textColor: '#003366' },
+      { id: 'F', name: 'フロントエンド実装', duration: 6, assignee: '山本', dependencies: ['C'], barColor: '#87ceeb', textColor: '#003366' },
+      { id: 'G', name: 'バックエンド実装', duration: 8, assignee: '山本', dependencies: ['E'], barColor: '#87ceeb', textColor: '#003366' },
+      { id: 'H', name: '統合テスト', duration: 5, assignee: '山本', dependencies: ['F', 'G'], barColor: '#87ceeb', textColor: '#003366' },
+      { id: 'M', name: 'リリース', duration: 0, assignee: 'PM', dependencies: ['H'], barColor: '#87ceeb', textColor: '#003366' }
+    ];
+
+    let anchors = [
+      { task: 'A', day: 1, date: '2025-10-06' },
+      { task: 'H', day: 3, date: '2025-11-20' }
+    ];
+
+    let holidays = [
+      { date: '2025-10-13', label: 'スポーツの日' }
+    ];
+
+    let closedPeriods = [
+      { from: '2025-12-28', to: '2026-01-05', label: '年末年始' }
+    ];
+
+    let workdays = [
+      { date: '2025-10-12', label: '特別稼働日' }
+    ];
+
+    let editingTaskId = null;
+    let currentColorDialogContext = null; // 'task' or 'bulk'
+    let contextMenuTaskId = null; // Store the task ID for context menu actions
+
+    // カラープリセット定義
+    const colorPresets = {
+      'blue-white': { barColor: '#4a90e2', textColor: '#ffffff' },
+      'green-white': { barColor: '#27ae60', textColor: '#ffffff' },
+      'red-white': { barColor: '#e74c3c', textColor: '#ffffff' },
+      'orange-white': { barColor: '#e67e22', textColor: '#ffffff' },
+      'purple-white': { barColor: '#9b59b6', textColor: '#ffffff' },
+      'teal-white': { barColor: '#1abc9c', textColor: '#ffffff' },
+      'indigo-white': { barColor: '#3498db', textColor: '#ffffff' },
+      'pink-white': { barColor: '#e91e63', textColor: '#ffffff' },
+      'yellow-black': { barColor: '#f1c40f', textColor: '#000000' },
+      'lightblue-darkblue': { barColor: '#87ceeb', textColor: '#003366' },
+      'lightgreen-darkgreen': { barColor: '#90ee90', textColor: '#006400' },
+      'gray-white': { barColor: '#7f8c8d', textColor: '#ffffff' },
+      'lightyellow-darkbrown': { barColor: '#fff9c4', textColor: '#3e2723' },
+      'lightpink-darkred': { barColor: '#ffcdd2', textColor: '#b71c1c' },
+      'lightorange-darkorange': { barColor: '#ffe0b2', textColor: '#e65100' },
+      'lightpurple-darkpurple': { barColor: '#e1bee7', textColor: '#4a148c' },
+      'lightcyan-darkcyan': { barColor: '#b2ebf2', textColor: '#006064' },
+      'lightgray-darkgray': { barColor: '#e0e0e0', textColor: '#212121' },
+      'beige-darkbrown': { barColor: '#f5f5dc', textColor: '#2c1810' },
+      'peach-darkpink': { barColor: '#ffdab9', textColor: '#880e4f' }
+    };
+
+    // カラープリセット名のマッピング
+    const colorPresetNames = {
+      'blue-white': 'ブルー / ホワイト',
+      'green-white': 'グリーン / ホワイト',
+      'red-white': 'レッド / ホワイト',
+      'orange-white': 'オレンジ / ホワイト',
+      'purple-white': 'パープル / ホワイト',
+      'teal-white': 'ティール / ホワイト',
+      'indigo-white': 'インディゴ / ホワイト',
+      'pink-white': 'ピンク / ホワイト',
+      'yellow-black': 'イエロー / ブラック',
+      'lightblue-darkblue': 'ライトブルー / ダークブルー',
+      'lightgreen-darkgreen': 'ライトグリーン / ダークグリーン',
+      'gray-white': 'グレー / ホワイト',
+      'lightyellow-darkbrown': 'ライトイエロー / ダークブラウン',
+      'lightpink-darkred': 'ライトピンク / ダークレッド',
+      'lightorange-darkorange': 'ライトオレンジ / ダークオレンジ',
+      'lightpurple-darkpurple': 'ライトパープル / ダークパープル',
+      'lightcyan-darkcyan': 'ライトシアン / ダークシアン',
+      'lightgray-darkgray': 'ライトグレー / ダークグレー',
+      'beige-darkbrown': 'ベージュ / ダークブラウン',
+      'peach-darkpink': 'ピーチ / ダークピンク'
+    };
+
+    // カラープリセットダイアログを開く
+    function openColorDialog(context) {
+      currentColorDialogContext = context;
+      const grid = document.getElementById('colorPresetGrid');
+
+      // プリセットアイテムを生成
+      grid.innerHTML = Object.entries(colorPresets).map(([key, colors]) => `
+        <div class="color-preset-item" data-preset="${key}" onclick="selectColorPreset('${key}')">
+          <div class="color-preset-label">${colorPresetNames[key]}</div>
+          <div class="color-preset-preview">
+            <div class="color-preview-bar" style="background: ${colors.barColor}; color: ${colors.textColor};">
+              サンプル
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // ダイアログを表示
+      document.getElementById('colorDialogOverlay').classList.add('active');
+    }
+
+    // カラープリセットを選択
+    function selectColorPreset(presetKey) {
+      const preset = colorPresets[presetKey];
+      const presetName = colorPresetNames[presetKey];
+
+      if (currentColorDialogContext === 'task') {
+        document.getElementById('colorPreset').value = presetKey;
+        const taskLabel = document.getElementById('selectedTaskPresetLabel');
+        taskLabel.textContent = presetName;
+        taskLabel.style.backgroundColor = preset.barColor;
+        taskLabel.style.color = preset.textColor;
+        taskLabel.style.padding = '4px 8px';
+        taskLabel.style.borderRadius = '4px';
+        taskLabel.style.display = 'inline-block';
+        document.getElementById('taskBarColor').value = preset.barColor;
+        document.getElementById('taskTextColor').value = preset.textColor;
+      } else if (currentColorDialogContext === 'bulk') {
+        document.getElementById('bulkColorPreset').value = presetKey;
+        const bulkLabel = document.getElementById('selectedBulkPresetLabel');
+        bulkLabel.textContent = presetName;
+        bulkLabel.style.backgroundColor = preset.barColor;
+        bulkLabel.style.color = preset.textColor;
+        bulkLabel.style.padding = '4px 8px';
+        bulkLabel.style.borderRadius = '4px';
+        bulkLabel.style.display = 'inline-block';
+      } else if (currentColorDialogContext === 'edit') {
+        document.getElementById('editColorPreset').value = presetKey;
+        const editLabel = document.getElementById('selectedEditPresetLabel');
+        editLabel.textContent = presetName;
+        editLabel.style.backgroundColor = preset.barColor;
+        editLabel.style.color = preset.textColor;
+        editLabel.style.padding = '4px 8px';
+        editLabel.style.borderRadius = '4px';
+        editLabel.style.display = 'inline-block';
+        document.getElementById('editTaskBarColor').value = preset.barColor;
+        document.getElementById('editTaskTextColor').value = preset.textColor;
+      }
+
+      closeColorDialog();
+    }
+
+    // ダイアログを閉じる
+    function closeColorDialog() {
+      document.getElementById('colorDialogOverlay').classList.remove('active');
+      currentColorDialogContext = null;
+    }
+
+    // オーバーレイクリックでダイアログを閉じる
+    function closeColorDialogOnOverlay(event) {
+      if (event.target.id === 'colorDialogOverlay') {
+        closeColorDialog();
+      }
+    }
+
+    // 色選択モードの切り替え
+    function toggleColorMode() {
+      const mode = document.querySelector('input[name="colorMode"]:checked').value;
+      const presetSection = document.getElementById('presetColorSection');
+      const customSection = document.getElementById('customColorSection');
+
+      if (mode === 'preset') {
+        presetSection.style.display = 'block';
+        customSection.style.display = 'none';
+      } else {
+        presetSection.style.display = 'none';
+        customSection.style.display = 'grid';
+      }
+    }
+
+    // 編集ダイアログの色選択モードの切り替え
+    function toggleEditColorMode() {
+      const mode = document.querySelector('input[name="editColorMode"]:checked').value;
+      const presetSection = document.getElementById('editPresetColorSection');
+      const customSection = document.getElementById('editCustomColorSection');
+
+      if (mode === 'preset') {
+        presetSection.style.display = 'block';
+        customSection.style.display = 'none';
+      } else {
+        presetSection.style.display = 'none';
+        customSection.style.display = 'grid';
+      }
+    }
+
+    // タブ切り替え
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      event.target.classList.add('active');
+      document.getElementById(tabName + '-tab').classList.add('active');
+    }
+
+    // タスク追加/編集
+    function addTask(event) {
+      event.preventDefault();
+
+      const id = document.getElementById('taskId').value.trim();
+      const name = document.getElementById('taskName').value.trim();
+      const duration = parseInt(document.getElementById('taskDuration').value);
+      const assignee = document.getElementById('taskAssignee').value.trim();
+      const deps = document.getElementById('taskDependencies').value
+        .split(',')
+        .map(d => d.trim())
+        .filter(d => d);
+      const barColor = document.getElementById('taskBarColor').value;
+      const textColor = document.getElementById('taskTextColor').value;
+
+      const taskData = {
+        id,
+        name,
+        duration,
+        assignee,
+        dependencies: deps
+      };
+
+      // Add colors only if specified
+      if (barColor) taskData.barColor = barColor;
+      if (textColor) taskData.textColor = textColor;
+
+      if (editingTaskId) {
+        const index = tasks.findIndex(t => t.id === editingTaskId);
+        if (index !== -1) {
+          tasks[index] = taskData;
+        }
+        editingTaskId = null;
+      } else {
+        if (tasks.find(t => t.id === id)) {
+          alert('同じIDのタスクが既に存在します');
+          return;
+        }
+        tasks.push(taskData);
+      }
+
+      resetTaskForm();
+      renderTaskList();
+      updateChart();
+      updateStatusBar();
+    }
+
+    function editTask(id) {
+      const task = tasks.find(t => t.id === id);
+      if (!task) return;
+
+      // Switch to tasks tab and scroll to form
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      document.querySelectorAll('.tab')[0].classList.add('active');
+      document.getElementById('tasks-tab').classList.add('active');
+      document.getElementById('taskForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      document.getElementById('taskId').value = task.id;
+      document.getElementById('taskName').value = task.name;
+      document.getElementById('taskDuration').value = task.duration;
+      document.getElementById('taskAssignee').value = task.assignee || '';
+      document.getElementById('taskDependencies').value = task.dependencies.join(', ');
+      document.getElementById('taskBarColor').value = task.barColor || '';
+      document.getElementById('taskTextColor').value = task.textColor || '#ffffff';
+
+      // If task has colors, switch to custom mode and check if it matches a preset
+      if (task.barColor || task.textColor) {
+        let matchedPreset = null;
+        for (const [presetKey, presetValue] of Object.entries(colorPresets)) {
+          if (presetValue.barColor === task.barColor && presetValue.textColor === task.textColor) {
+            matchedPreset = presetKey;
+            break;
+          }
+        }
+
+        if (matchedPreset) {
+          // Use preset mode
+          document.querySelector('input[name="colorMode"][value="preset"]').checked = true;
+          toggleColorMode();
+          document.getElementById('colorPreset').value = matchedPreset;
+          const taskLabel = document.getElementById('selectedTaskPresetLabel');
+          taskLabel.textContent = colorPresetNames[matchedPreset];
+          taskLabel.style.backgroundColor = task.barColor;
+          taskLabel.style.color = task.textColor;
+          taskLabel.style.padding = '4px 8px';
+          taskLabel.style.borderRadius = '4px';
+          taskLabel.style.display = 'inline-block';
+        } else {
+          // Use custom mode
+          document.querySelector('input[name="colorMode"][value="custom"]').checked = true;
+          toggleColorMode();
+        }
+      } else {
+        // No colors, use preset mode
+        document.querySelector('input[name="colorMode"][value="preset"]').checked = true;
+        toggleColorMode();
+        document.getElementById('colorPreset').value = '';
+        const taskLabel = document.getElementById('selectedTaskPresetLabel');
+        taskLabel.textContent = 'プリセットを選択';
+        taskLabel.style.backgroundColor = '';
+        taskLabel.style.color = '';
+        taskLabel.style.padding = '';
+        taskLabel.style.borderRadius = '';
+        taskLabel.style.display = '';
+      }
+
+      editingTaskId = id;
+      document.querySelector('#taskForm button[type="submit"]').textContent = 'タスクを更新';
+    }
+
+    function deleteTask(id) {
+      if (!confirm(`タスク ${id} を削除しますか？`)) return;
+
+      tasks = tasks.filter(t => t.id !== id);
+      anchors = anchors.filter(a => a.task !== id);
+
+      renderTaskList();
+      renderAnchorList();
+      updateChart();
+      updateStatusBar();
+    }
+
+    function resetTaskForm() {
+      document.getElementById('taskForm').reset();
+      editingTaskId = null;
+      document.querySelector('#taskForm button[type="submit"]').textContent = 'タスクを追加';
+
+      // Reset to preset mode
+      document.querySelector('input[name="colorMode"][value="preset"]').checked = true;
+      toggleColorMode();
+      document.getElementById('colorPreset').value = '';
+      const taskLabel = document.getElementById('selectedTaskPresetLabel');
+      taskLabel.textContent = 'プリセットを選択';
+      taskLabel.style.backgroundColor = '';
+      taskLabel.style.color = '';
+      taskLabel.style.padding = '';
+      taskLabel.style.borderRadius = '';
+      taskLabel.style.display = '';
+    }
+
+    function renderTaskList() {
+      const list = document.getElementById('taskList');
+      list.innerHTML = tasks.map(task => `
+        <li class="task-item">
+          <div class="task-item-info">
+            <strong>${task.id}</strong>: ${task.name}
+            (期間: ${task.duration}日, 担当: ${task.assignee || 'なし'})
+            ${task.dependencies.length > 0 ? `<br>依存: ${task.dependencies.join(', ')}` : ''}
+          </div>
+        </li>
+      `).join('');
+    }
+
+    // アンカー管理
+    function addAnchor(event) {
+      event.preventDefault();
+
+      const task = document.getElementById('anchorTaskId').value.trim();
+      const day = parseInt(document.getElementById('anchorDay').value);
+      const date = document.getElementById('anchorDate').value;
+
+      if (!tasks.find(t => t.id === task)) {
+        alert('指定されたタスクIDが存在しません');
+        return;
+      }
+
+      anchors.push({ task, day, date });
+      resetAnchorForm();
+      renderAnchorList();
+      updateChart();
+      updateStatusBar();
+    }
+
+    function deleteAnchor(index) {
+      anchors.splice(index, 1);
+      renderAnchorList();
+      updateChart();
+      updateStatusBar();
+    }
+
+    function resetAnchorForm() {
+      document.getElementById('anchorForm').reset();
+    }
+
+    function renderAnchorList() {
+      const list = document.getElementById('anchorList');
+      list.innerHTML = anchors.map((anchor, index) => `
+        <li class="list-item">
+          <span>タスク: ${anchor.task}, ${anchor.day}日目 = ${anchor.date}</span>
+          <button class="btn btn-danger" onclick="deleteAnchor(${index})">削除</button>
+        </li>
+      `).join('');
+    }
+
+    // カレンダー管理
+    function addHoliday(event) {
+      event.preventDefault();
+
+      const date = document.getElementById('holidayDate').value;
+      const label = document.getElementById('holidayLabel').value.trim();
+
+      holidays.push({ date, label });
+      document.getElementById('holidayForm').reset();
+      renderHolidayList();
+      updateChart();
+    }
+
+    function deleteHoliday(index) {
+      holidays.splice(index, 1);
+      renderHolidayList();
+      updateChart();
+    }
+
+    function renderHolidayList() {
+      const list = document.getElementById('holidayList');
+      list.innerHTML = holidays.map((holiday, index) => `
+        <li class="list-item">
+          <span>${holiday.date} - ${holiday.label || '(ラベルなし)'}</span>
+          <button class="btn btn-danger" onclick="deleteHoliday(${index})">削除</button>
+        </li>
+      `).join('');
+    }
+
+    function addClosed(event) {
+      event.preventDefault();
+
+      const from = document.getElementById('closedFrom').value;
+      const to = document.getElementById('closedTo').value;
+      const label = document.getElementById('closedLabel').value.trim();
+
+      closedPeriods.push({ from, to, label });
+      document.getElementById('closedForm').reset();
+      renderClosedList();
+      updateChart();
+    }
+
+    function deleteClosed(index) {
+      closedPeriods.splice(index, 1);
+      renderClosedList();
+      updateChart();
+    }
+
+    function renderClosedList() {
+      const list = document.getElementById('closedList');
+      list.innerHTML = closedPeriods.map((period, index) => `
+        <li class="list-item">
+          <span>${period.from} 〜 ${period.to} - ${period.label || '(ラベルなし)'}</span>
+          <button class="btn btn-danger" onclick="deleteClosed(${index})">削除</button>
+        </li>
+      `).join('');
+    }
+
+    function addWorkday(event) {
+      event.preventDefault();
+
+      const date = document.getElementById('workdayDate').value;
+      const label = document.getElementById('workdayLabel').value.trim();
+
+      workdays.push({ date, label });
+      document.getElementById('workdayForm').reset();
+      renderWorkdayList();
+      updateChart();
+    }
+
+    function deleteWorkday(index) {
+      workdays.splice(index, 1);
+      renderWorkdayList();
+      updateChart();
+    }
+
+    function renderWorkdayList() {
+      const list = document.getElementById('workdayList');
+      list.innerHTML = workdays.map((workday, index) => `
+        <li class="list-item">
+          <span>${workday.date} - ${workday.label || '(ラベルなし)'}</span>
+          <button class="btn btn-danger" onclick="deleteWorkday(${index})">削除</button>
+        </li>
+      `).join('');
+    }
+
+    // チャート更新
+    function updateChart() {
+      const workingDays = document.getElementById('workingDays').value;
+      const locale = document.getElementById('locale').value;
+      const showNonWorkingDays = document.getElementById('showNonWorkingDays').checked;
+      const hideTaskNameColumn = document.getElementById('hideTaskNameColumn').checked;
+
+      let html = `
+        <gantt-chart working-days="${workingDays}" locale="${locale}" timezone="Asia/Tokyo" ${showNonWorkingDays ? 'show-non-working-days' : ''} ${hideTaskNameColumn ? 'hide-task-name-column' : ''}>
+          ${tasks.map(task => {
+            const colorAttrs = [];
+            if (task.barColor) colorAttrs.push(`bar-color="${task.barColor}"`);
+            if (task.textColor) colorAttrs.push(`text-color="${task.textColor}"`);
+            return `
+            <gantt-task id="${task.id}" name="${task.name}" duration="${task.duration}" assignee="${task.assignee || ''}" ${colorAttrs.join(' ')}>
+              ${task.dependencies.map(dep => `<depends-on task="${dep}"></depends-on>`).join('\n              ')}
+            </gantt-task>`;
+          }).join('\n          ')}
+
+          <gantt-calendar>
+            ${holidays.map(h => `<gantt-holiday date="${h.date}" label="${h.label || ''}"></gantt-holiday>`).join('\n            ')}
+            ${closedPeriods.map(c => `<gantt-closed from="${c.from}" to="${c.to}" label="${c.label || ''}"></gantt-closed>`).join('\n            ')}
+            ${workdays.map(w => `<gantt-workday date="${w.date}" label="${w.label || ''}"></gantt-workday>`).join('\n            ')}
+          </gantt-calendar>
+
+          <gantt-anchors>
+            ${anchors.map(a => `<gantt-anchor task="${a.task}" day="${a.day}" date="${a.date}"></gantt-anchor>`).join('\n            ')}
+          </gantt-anchors>
+        </gantt-chart>
+      `;
+
+      document.getElementById('ganttChartContainer').innerHTML = html;
+
+      // Set up right-click handler for gantt chart
+      const ganttChart = document.querySelector('gantt-chart');
+      if (ganttChart) {
+        ganttChart.onTaskRightClick = showContextMenu;
+      }
+    }
+
+    // PNG ダウンロード
+    async function downloadChartAsPNG() {
+      const ganttChart = document.querySelector('gantt-chart');
+      if (!ganttChart) {
+        alert('ガントチャートが表示されていません');
+        return;
+      }
+
+      try {
+        // Shadow DOMから実際のコンテンツを取得
+        const shadowRoot = ganttChart.shadowRoot;
+        if (!shadowRoot) {
+          alert('Shadow DOMにアクセスできません');
+          return;
+        }
+
+        const ganttContainer = shadowRoot.querySelector('.gantt-container');
+        if (!ganttContainer) {
+          alert('ガントチャートコンテンツが見つかりません');
+          return;
+        }
+
+        // 元のスタイルを保存
+        const hostOriginalOverflow = ganttChart.style.overflow;
+        const hostOriginalMaxWidth = ganttChart.style.maxWidth;
+
+        // スクロールを無効化して全体を表示
+        ganttChart.style.overflow = 'visible';
+        ganttChart.style.maxWidth = 'none';
+
+        // html2canvasを使ってキャプチャ（内部コンテナを指定）
+        const canvas = await html2canvas(ganttContainer, {
+          backgroundColor: '#ffffff',
+          scale: 2, // 高解像度でキャプチャ
+          logging: false,
+          useCORS: true,
+          windowWidth: ganttContainer.scrollWidth,
+          windowHeight: ganttContainer.scrollHeight
+        });
+
+        // スタイルを元に戻す
+        ganttChart.style.overflow = hostOriginalOverflow;
+        ganttChart.style.maxWidth = hostOriginalMaxWidth;
+
+        // canvasをblobに変換してダウンロード
+        canvas.toBlob((blob) => {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+          link.download = `gantt-chart-${timestamp}.png`;
+          link.href = url;
+          link.click();
+          URL.revokeObjectURL(url);
+        });
+      } catch (error) {
+        console.error('ダウンロードエラー:', error);
+        alert('ダウンロードに失敗しました: ' + error.message);
+      }
+    }
+
+    // 一括色変更
+    function toggleBulkColorMode() {
+      const mode = document.querySelector('input[name="bulkColorMode"]:checked').value;
+      const presetSection = document.getElementById('bulkPresetColorSection');
+      const customSection = document.getElementById('bulkCustomColorSection');
+
+      if (mode === 'preset') {
+        presetSection.style.display = 'block';
+        customSection.style.display = 'none';
+      } else {
+        presetSection.style.display = 'none';
+        customSection.style.display = 'grid';
+      }
+    }
+
+    function applyBulkColors() {
+      const mode = document.querySelector('input[name="bulkColorMode"]:checked').value;
+      let barColor, textColor;
+
+      if (mode === 'preset') {
+        const presetValue = document.getElementById('bulkColorPreset').value;
+        if (!presetValue) {
+          alert('プリセットを選択してください');
+          return;
+        }
+        const preset = colorPresets[presetValue];
+        barColor = preset.barColor;
+        textColor = preset.textColor;
+      } else {
+        barColor = document.getElementById('bulkBarColor').value;
+        textColor = document.getElementById('bulkTextColor').value;
+      }
+
+      // Apply colors to all tasks
+      tasks.forEach(task => {
+        task.barColor = barColor;
+        task.textColor = textColor;
+      });
+
+      renderTaskList();
+      updateChart();
+      alert('すべてのタスクに色を適用しました');
+    }
+
+    // ダイアログ制御
+    function openDialog(dialogName) {
+      const dialog = document.getElementById(`${dialogName}-dialog`);
+      if (dialog) {
+        dialog.classList.add('active');
+      }
+    }
+
+    function closeDialog(dialogName) {
+      const dialog = document.getElementById(`${dialogName}-dialog`);
+      if (dialog) {
+        dialog.classList.remove('active');
+      }
+    }
+
+    function closeDialogOnOverlay(event, dialogName) {
+      if (event.target.classList.contains('dialog-overlay')) {
+        closeDialog(dialogName);
+      }
+    }
+
+    // ダイアログタブ切り替え
+    function switchDialogTab(tabName) {
+      const tabButtons = event.target.parentElement.querySelectorAll('.dialog-tab');
+      const tabContents = event.target.closest('.dialog-content').querySelectorAll('.dialog-tab-content');
+
+      tabButtons.forEach(tab => tab.classList.remove('active'));
+      tabContents.forEach(content => content.classList.remove('active'));
+
+      event.target.classList.add('active');
+      const targetContent = document.getElementById(`${tabName}-tab`);
+      if (targetContent) {
+        targetContent.classList.add('active');
+      }
+    }
+
+    // ステータスバー更新
+    function updateStatusBar() {
+      document.getElementById('taskCount').textContent = `タスク数: ${tasks.length}`;
+      document.getElementById('anchorCount').textContent = `アンカー: ${anchors.length}`;
+
+      const workingDays = document.getElementById('workingDays').value;
+      document.getElementById('workingDaysInfo').textContent = `営業日: ${workingDays}`;
+
+      const now = new Date();
+      const timeStr = now.toLocaleString('ja-JP', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      document.getElementById('lastUpdate').textContent = `最終更新: ${timeStr}`;
+    }
+
+    // コンテキストメニュー制御
+    function showContextMenu(taskId, taskName, event) {
+      contextMenuTaskId = taskId;
+      const menu = document.getElementById('taskContextMenu');
+      menu.style.left = event.pageX + 'px';
+      menu.style.top = event.pageY + 'px';
+      menu.classList.add('active');
+    }
+
+    function hideContextMenu() {
+      const menu = document.getElementById('taskContextMenu');
+      menu.classList.remove('active');
+      contextMenuTaskId = null;
+    }
+
+    function contextMenuEdit(event) {
+      if (event) event.stopPropagation();
+      if (contextMenuTaskId) {
+        const taskId = contextMenuTaskId;
+        hideContextMenu();
+        openEditTaskDialog(taskId);
+      }
+    }
+
+    function contextMenuDelete(event) {
+      if (event) event.stopPropagation();
+      if (contextMenuTaskId) {
+        const taskId = contextMenuTaskId;
+        hideContextMenu();
+        deleteTask(taskId);
+      }
+    }
+
+    // 単一タスク編集ダイアログを開く
+    function openEditTaskDialog(taskId) {
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) {
+        return;
+      }
+
+      try {
+        // Populate form fields
+        document.getElementById('editTaskId').value = task.id;
+        document.getElementById('editTaskName').value = task.name;
+        document.getElementById('editTaskDuration').value = task.duration;
+        document.getElementById('editTaskAssignee').value = task.assignee || '';
+        document.getElementById('editTaskDependencies').value = task.dependencies.join(', ');
+        document.getElementById('editTaskBarColor').value = task.barColor || '';
+        document.getElementById('editTaskTextColor').value = task.textColor || '#ffffff';
+
+        // Check if task colors match a preset
+        if (task.barColor || task.textColor) {
+          let matchedPreset = null;
+          for (const [presetKey, presetValue] of Object.entries(colorPresets)) {
+            if (presetValue.barColor === task.barColor && presetValue.textColor === task.textColor) {
+              matchedPreset = presetKey;
+              break;
+            }
+          }
+
+          if (matchedPreset) {
+            // Use preset mode
+            document.querySelector('input[name="editColorMode"][value="preset"]').checked = true;
+            toggleEditColorMode();
+            document.getElementById('editColorPreset').value = matchedPreset;
+            const editLabel = document.getElementById('selectedEditPresetLabel');
+            editLabel.textContent = colorPresetNames[matchedPreset];
+            editLabel.style.backgroundColor = task.barColor;
+            editLabel.style.color = task.textColor;
+            editLabel.style.padding = '4px 8px';
+            editLabel.style.borderRadius = '4px';
+            editLabel.style.display = 'inline-block';
+          } else {
+            // Use custom mode
+            document.querySelector('input[name="editColorMode"][value="custom"]').checked = true;
+            toggleEditColorMode();
+          }
+        } else {
+          // No colors, use preset mode
+          document.querySelector('input[name="editColorMode"][value="preset"]').checked = true;
+          toggleEditColorMode();
+          document.getElementById('editColorPreset').value = '';
+          const editLabel = document.getElementById('selectedEditPresetLabel');
+          editLabel.textContent = 'プリセットを選択';
+          editLabel.style.backgroundColor = '';
+          editLabel.style.color = '';
+          editLabel.style.padding = '';
+          editLabel.style.borderRadius = '';
+          editLabel.style.display = '';
+        }
+      } catch (error) {
+        console.error('Error setting up edit dialog:', error);
+      }
+
+      // Open dialog - this should happen regardless of any errors above
+      openDialog('task-edit');
+    }
+
+    // 単一タスクを更新
+    function updateSingleTask(event) {
+      event.preventDefault();
+
+      const id = document.getElementById('editTaskId').value.trim();
+      const name = document.getElementById('editTaskName').value.trim();
+      const duration = parseInt(document.getElementById('editTaskDuration').value);
+      const assignee = document.getElementById('editTaskAssignee').value.trim();
+      const deps = document.getElementById('editTaskDependencies').value
+        .split(',')
+        .map(d => d.trim())
+        .filter(d => d);
+
+      const index = tasks.findIndex(t => t.id === id);
+      if (index === -1) {
+        alert('タスクが見つかりません');
+        return;
+      }
+
+      const taskData = {
+        id,
+        name,
+        duration,
+        assignee,
+        dependencies: deps
+      };
+
+      // Handle color mode - check if preset or custom
+      const colorMode = document.querySelector('input[name="editColorMode"]:checked').value;
+
+      if (colorMode === 'preset') {
+        const presetValue = document.getElementById('editColorPreset').value;
+        if (presetValue && colorPresets[presetValue]) {
+          taskData.barColor = colorPresets[presetValue].barColor;
+          taskData.textColor = colorPresets[presetValue].textColor;
+        }
+      } else {
+        // Custom mode
+        const barColor = document.getElementById('editTaskBarColor').value;
+        const textColor = document.getElementById('editTaskTextColor').value;
+        if (barColor) taskData.barColor = barColor;
+        if (textColor) taskData.textColor = textColor;
+      }
+
+      tasks[index] = taskData;
+
+      closeDialog('task-edit');
+      renderTaskList();
+      updateChart();
+      updateStatusBar();
+    }
+
+    // Hide context menu when clicking anywhere else
+    document.addEventListener('click', (e) => {
+      const menu = document.getElementById('taskContextMenu');
+      if (menu && !menu.contains(e.target)) {
+        hideContextMenu();
+      }
+    });
+
+    // 初期化
+    renderTaskList();
+    renderAnchorList();
+    renderHolidayList();
+    renderClosedList();
+    renderWorkdayList();
+    updateChart();
+    updateStatusBar();
+  </script>
+</body>
+</html>
